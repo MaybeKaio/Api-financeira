@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Painel Financeiro Estratégico</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root { --accent: #10b981; }
+    body { font-family: 'Inter', sans-serif; background-color: #0b0f19; color: #f1f5f9; }
+    .light body { background-color: #f8fafc; color: #0f172a; }
+    .card { background-color: #111827; border: 1px solid #1f2937; border-radius: 0.75rem; }
+    .light .card { background-color: #ffffff; border: 1px solid #e2e8f0; }
+    .privacy-blur .money-val { filter: blur(7px); user-select: none; transition: filter 0.2s ease; }
+    .money-val { font-family: 'JetBrains Mono', monospace; transition: filter 0.2s ease; }
+    .tab-btn.active { border-bottom: 2px solid var(--accent); color: var(--accent); font-weight: 600; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+  </style>
+</head>
+<body class="min-h-screen pb-16 transition-colors duration-200">
+
+  <!-- TOP HEADER -->
+  <header class="sticky top-0 z-30 backdrop-blur-md bg-slate-900/85 border-b border-slate-800 px-4 py-3">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold font-mono">
+          R$
+        </div>
+        <div>
+          <h1 class="font-bold text-base sm:text-lg leading-tight flex items-center gap-2">
+            Controle Financeiro Pessoal
+            <span id="syncBadge" class="text-[11px] font-normal px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">Modo Local</span>
+          </h1>
+          <p class="text-xs text-slate-400">Tabela Única Evolutiva • Arbitragem 120% CDI</p>
+        </div>
+      </div>
+
+      <!-- Controles Globais -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <input type="month" id="currentMonthPicker" onchange="changeMonth(this.value)" 
+          class="bg-slate-800 border border-slate-700 text-xs rounded-lg px-2.5 py-1.5 text-slate-200 font-mono focus:outline-none focus:border-emerald-500" />
+
+        <button onclick="toggleCareerMode()" id="careerModeBtn"
+          class="text-xs px-2.5 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition flex items-center gap-1.5">
+          <span>🩺</span> <span class="hidden sm:inline">Fase:</span> <strong id="careerModeLabel">Internato</strong>
+        </button>
+
+        <button onclick="togglePrivacy()" class="text-xs px-2.5 py-1.5 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 transition" title="Modo Privacidade">
+          👁️
+        </button>
+
+        <button onclick="pullFromSheets()" class="text-xs px-2.5 py-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 transition flex items-center gap-1">
+          🔄 <span class="hidden md:inline">Sincronizar Planilha</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- NAVEGAÇÃO DE ABAS -->
+    <nav class="max-w-7xl mx-auto mt-3 flex gap-1 overflow-x-auto border-b border-slate-800/80 text-xs sm:text-sm">
+      <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn active px-3 py-2 whitespace-nowrap">📊 Visão Geral & Orçamento</button>
+      <button onclick="switchTab('transactions')" id="tab-transactions" class="tab-btn px-3 py-2 whitespace-nowrap">💳 Lançamentos & Cartões</button>
+      <button onclick="switchTab('goals')" id="tab-goals" class="tab-btn px-3 py-2 whitespace-nowrap">🎯 Caixinhas & Metas</button>
+      <button onclick="switchTab('simulator')" id="tab-simulator" class="tab-btn px-3 py-2 whitespace-nowrap">📈 Juros & Arbitragem CDI</button>
+      <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn px-3 py-2 whitespace-nowrap">⚙️ Conexão & Ajustes</button>
+    </nav>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 pt-5 space-y-6">
+
+    <!-- ==================== ABA 1: DASHBOARD ==================== -->
+    <section id="view-dashboard" class="space-y-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <div class="card p-4">
+          <div class="flex justify-between items-start">
+            <span class="text-xs text-slate-400 uppercase tracking-wider">Saldo Bancário Bruto</span>
+            <span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300">BB + Inter + MP</span>
+          </div>
+          <div class="text-2xl font-bold mt-2 text-white money-val" id="kpiGrossBalance">R$ 0,00</div>
+          <div class="mt-3 grid grid-cols-3 gap-1 text-[11px] text-slate-400 border-t border-slate-800 pt-2">
+            <div>BB: <span class="text-slate-200 money-val" id="miniBB">R$ 0</span></div>
+            <div>Inter: <span class="text-slate-200 money-val" id="miniInter">R$ 0</span></div>
+            <div>MP: <span class="text-emerald-400 money-val" id="miniMP">R$ 0</span></div>
+          </div>
+        </div>
+
+        <div class="card p-4 border-emerald-500/30">
+          <div class="flex justify-between items-start">
+            <span class="text-xs text-emerald-400 uppercase tracking-wider font-semibold">Liquidez Real (Pós-Fatura)</span>
+            <span class="text-[11px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300">120% CDI</span>
+          </div>
+          <div class="text-2xl font-bold mt-2 text-emerald-400 money-val" id="kpiNetLiquidity">R$ 0,00</div>
+          <p class="text-[11px] text-slate-400 mt-2 border-t border-slate-800 pt-2 flex justify-between">
+            <span>Faturas do Mês (Sua parte):</span>
+            <strong class="text-rose-400 money-val" id="kpiOpenInvoices">R$ 0,00</strong>
+          </p>
+        </div>
+
+        <div class="card p-4">
+          <div class="flex justify-between items-start">
+            <span class="text-xs text-slate-400 uppercase tracking-wider">Gasto no Mês vs Renda</span>
+            <span class="text-xs font-mono text-amber-400" id="kpiPointsInter">⭐ 3.700 pts Inter</span>
+          </div>
+          <div class="flex items-baseline gap-2 mt-2">
+            <span class="text-2xl font-bold text-white money-val" id="kpiMonthSpent">R$ 0,00</span>
+            <span class="text-xs text-slate-400">/ <span class="money-val" id="kpiMonthIncome">R$ 1.400</span></span>
+          </div>
+          <div class="w-full bg-slate-800 h-2 rounded-full mt-3 overflow-hidden">
+            <div id="kpiBudgetBar" class="bg-emerald-500 h-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="card p-4">
+          <div class="flex justify-between items-start">
+            <span class="text-xs text-rose-400 uppercase tracking-wider font-semibold">🍔 Alerta: Comida Fora</span>
+            <span class="text-[11px] px-2 py-0.5 rounded bg-rose-500/10 text-rose-300" id="foodOutCount">0x no mês</span>
+          </div>
+          <div class="text-2xl font-bold mt-2 text-rose-400 money-val" id="kpiFoodOutSpent">R$ 0,00</div>
+          <p class="text-[11px] text-slate-400 mt-2 border-t border-slate-800 pt-2 flex justify-between">
+            <span>Rendimento estimado MP:</span>
+            <strong class="text-emerald-400 money-val" id="kpiArbitrageGain">+R$ 0,00/mês</strong>
+          </p>
+        </div>
+      </div>
+
+      <!-- STREAK SEMANAL -->
+      <div class="card p-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+          <div>
+            <h2 class="text-sm font-bold flex items-center gap-2">
+              🔥 Consistência Semanal ("Não Quebre a Corrente")
+              <span class="text-xs font-normal px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20" id="streakCounter">0/4 semanas</span>
+            </h2>
+            <p class="text-xs text-slate-400">Revisão semanal de domingo: lançar gastos na tabela única e validar teto das categorias.</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="weeklyStreakGrid"></div>
+      </div>
+
+      <!-- DIVISÃO AUTOMÁTICA DA RENDA + GRÁFICOS -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="card p-5 lg:col-span-7 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 class="text-base font-bold">Divisão Automática da Renda (<span class="money-val" id="budgetBaseLabel">R$ 1.400,00</span>)</h2>
+              <p class="text-xs text-slate-400">Alertas automáticos em 80% (Amarelo) e 100% (Vermelho).</p>
+            </div>
+            <button onclick="promptUpdateIncome()" class="text-xs px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700">
+              ✏️ Ajustar Renda Base
+            </button>
+          </div>
+          <div id="categoryBudgetList" class="space-y-3 pt-1"></div>
+        </div>
+
+        <div class="lg:col-span-5 space-y-6">
+          <div class="card p-4">
+            <h3 class="text-sm font-bold mb-1">Distribuição por Categoria (Rosca)</h3>
+            <div class="relative h-56 w-full flex items-center justify-center">
+              <canvas id="doughnutChart"></canvas>
+            </div>
+          </div>
+
+          <div class="card p-4">
+            <h3 class="text-sm font-bold mb-1">Evolução Mensal (Competência)</h3>
+            <div class="relative h-48 w-full">
+              <canvas id="evolutionChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== ABA 2: LANÇAMENTOS & CARTÕES ==================== -->
+    <section id="view-transactions" class="hidden space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="card p-4 space-y-3">
+          <div class="flex justify-between items-center">
+            <h3 class="text-sm font-bold">🏦 Saldo Atual das Contas</h3>
+            <span class="text-[11px] text-slate-400">Sincronizado com aba Config</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <div class="p-3 rounded-lg bg-slate-800/60 border border-slate-700/70">
+              <div class="text-xs text-amber-400 font-semibold">Banco do Brasil</div>
+              <div class="text-lg font-bold mt-1 money-val" id="accBB">R$ 0,00</div>
+              <button onclick="editAccountBalance('bb')" class="mt-2 text-[11px] text-emerald-400 hover:underline">Editar saldo</button>
+            </div>
+            <div class="p-3 rounded-lg bg-slate-800/60 border border-slate-700/70">
+              <div class="text-xs text-orange-400 font-semibold">Banco Inter</div>
+              <div class="text-lg font-bold mt-1 money-val" id="accInter">R$ 0,00</div>
+              <button onclick="editAccountBalance('inter')" class="mt-2 text-[11px] text-emerald-400 hover:underline">Editar saldo</button>
+            </div>
+            <div class="p-3 rounded-lg bg-emerald-950/30 border border-emerald-500/30">
+              <div class="text-xs text-emerald-400 font-semibold">Mercado Pago</div>
+              <div class="text-lg font-bold mt-1 text-emerald-400 money-val" id="accMP">R$ 0,00</div>
+              <button onclick="editAccountBalance('mp')" class="mt-2 text-[11px] text-emerald-400 hover:underline">Editar saldo</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-4 space-y-3">
+          <div class="flex justify-between items-center">
+            <h3 class="text-sm font-bold">💳 Faturas do Mês (Competência)</h3>
+            <button onclick="payMonthInvoices()" class="text-xs px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30">
+              ✔️ Pagar Fatura c/ Saldo MP
+            </button>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-800/60 border border-slate-700">
+            <div class="flex justify-between text-xs">
+              <span class="font-semibold text-orange-400">Cartão Inter (Limite R$ 4.000)</span>
+              <span>Fatura Mês: <strong class="text-white money-val" id="cardInterUsed">R$ 0,00</strong></span>
+            </div>
+            <div class="w-full bg-slate-900 h-2 rounded-full mt-1.5 overflow-hidden">
+              <div id="cardInterBar" class="bg-orange-500 h-full" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-800/60 border border-slate-700">
+            <div class="flex justify-between text-xs">
+              <span class="font-semibold text-sky-400">Cartão BRB (Limite R$ 1.000)</span>
+              <span>Sua Parte: <strong class="text-rose-400 money-val" id="cardBRBMyShare">R$ 0,00</strong> <span class="text-slate-400">(Total: <span class="money-val" id="cardBRBTotal">R$ 0</span>)</span></span>
+            </div>
+            <div class="w-full bg-slate-900 h-2 rounded-full mt-1.5 overflow-hidden">
+              <div id="cardBRBBar" class="bg-sky-500 h-full" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ATALHOS RÁPIDOS -->
+      <div class="card p-4">
+        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2.5">⚡ Preenchimento Rápido</div>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="quickFill('Gasolina', 50, 'transporte', 'card_inter', false)" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700">⛽ Gasolina R$ 50</button>
+          <button onclick="quickFill('Gasolina Tanque', 100, 'transporte', 'card_inter', false)" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700">⛽ Gasolina R$ 100</button>
+          <button onclick="quickFill('Plano Celular', 30, 'fixos', 'card_inter', false)" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700">📱 Celular R$ 30</button>
+          <button onclick="quickFill('Barbearia / Cabelo', 75, 'fixos', 'card_inter', false)" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700">💈 Cabelo R$ 75</button>
+          <button onclick="quickFill('Academia', 75, 'fixos', 'card_inter', false)" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700">🏋️ Academia R$ 75</button>
+          <button onclick="quickFill('Lanche / Comida Fora', 45, 'lazer', 'card_inter', true)" class="text-xs px-3 py-1.5 rounded-lg bg-rose-950/40 text-rose-300 border border-rose-500/30">🍔 Comida Fora R$ 45</button>
+          <button onclick="quickFill('Doação & Caridade (5%)', 70, 'doacao', 'pix_inter', false)" class="text-xs px-3 py-1.5 rounded-lg bg-purple-950/40 text-purple-300 border border-purple-500/30">🤝 Doação R$ 70</button>
+          <button onclick="quickFill('Auxílio Família (5%)', 70, 'familia', 'pix_inter', false)" class="text-xs px-3 py-1.5 rounded-lg bg-amber-950/40 text-amber-300 border border-amber-500/30">🏠 Família R$ 70</button>
+        </div>
+      </div>
+
+      <!-- FORMULÁRIO DE LANÇAMENTO (ENVIA DIRETO PARA A TABELA ÚNICA) -->
+      <form id="txForm" onsubmit="addTransaction(event)" class="card p-5 space-y-4">
+        <div class="flex justify-between items-center">
+          <h3 class="text-sm font-bold">➕ Adicionar Linha na Tabela de Lançamentos</h3>
+          <span class="text-[11px] text-slate-400">Salva localmente e adiciona linha na aba "Lancamentos" da Planilha</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
+          <div class="lg:col-span-2">
+            <label class="text-xs text-slate-400">Descrição</label>
+            <input type="text" id="txDesc" required placeholder="Ex: Gasolina, Curso, Lanche..."
+              class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div>
+            <label class="text-xs text-slate-400">Valor Total (R$)</label>
+            <input type="number" step="0.01" min="0.01" id="txAmount" required placeholder="0,00"
+              class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div>
+            <label class="text-xs text-slate-400">Categoria</label>
+            <select id="txCategory" onchange="handleCategoryChange()"
+              class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500">
+              <option value="transporte">⛽ Transporte / Gasolina (20%)</option>
+              <option value="fixos">🏠 Custos Fixos (15%)</option>
+              <option value="lazer">🍔 Lazer & Comida Fora (15%)</option>
+              <option value="ensino">📚 Ensino & Formação (10%)</option>
+              <option value="doacao">🤝 Doação & Caridade (5%)</option>
+              <option value="familia">👨‍👩‍👧 Auxílio Família (5%)</option>
+              <option value="metas">🎯 Aporte Caixinhas / Metas (30%)</option>
+              <option value="receita">💰 Receita Extra / Bolsa</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400">Meio de Pagamento</label>
+            <select id="txMethod" onchange="handleMethodChange()"
+              class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500">
+              <option value="card_inter">💳 Crédito Inter</option>
+              <option value="card_brb">💳 Crédito BRB (Pai/Mãe)</option>
+              <option value="pix_inter">⚡ Pix / Débito Inter</option>
+              <option value="pix_bb">🏦 Pix / Conta BB</option>
+              <option value="pix_mp">📈 Saldo Mercado Pago</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400">Data da Compra</label>
+            <input type="date" id="txDate" required
+              class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:border-emerald-500" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-800/80">
+          <div id="installmentBox">
+            <label class="text-xs text-slate-400">Parcelamento (Gera 1 linha por mês na planilha)</label>
+            <select id="txInstallments" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs">
+              <option value="1">À vista (1x)</option>
+              <option value="2">2x sem juros</option>
+              <option value="3">3x sem juros</option>
+              <option value="4">4x sem juros</option>
+              <option value="6">6x sem juros</option>
+              <option value="10">10x sem juros</option>
+              <option value="12">12x sem juros</option>
+            </select>
+          </div>
+
+          <div id="brbSplitBox" class="hidden">
+            <label class="text-xs text-sky-400 font-semibold">Divisão do Cartão BRB:</label>
+            <select id="txBrbRule" class="w-full mt-1 bg-sky-950/50 border border-sky-500/40 rounded-lg px-3 py-1.5 text-xs text-sky-200">
+              <option value="1">Eu pago 100%</option>
+              <option value="0.5">Dividido c/ Mãe (Eu pago 50%)</option>
+              <option value="0">Meu Pai paga 100% (R$ 0 p/ mim)</option>
+            </select>
+          </div>
+
+          <div class="flex items-end pb-1">
+            <label class="flex items-center gap-2 text-xs text-slate-300 cursor-pointer select-none">
+              <input type="checkbox" id="txIsFoodOut" class="rounded bg-slate-800 border-slate-700 text-rose-500" />
+              <span>🍔 Marcar como <strong>"Comida Fora"</strong></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="flex justify-end">
+          <button type="submit" id="submitTxBtn" class="px-5 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-sm transition">
+            Registrar Lançamento
+          </button>
+        </div>
+      </form>
+
+      <!-- TABELA DE LANÇAMENTOS -->
+      <div class="card p-5">
+        <div class="flex flex-wrap justify-between items-center gap-2 mb-4">
+          <h3 class="text-sm font-bold">📋 Linhas da Tabela no Mês Selecionado</h3>
+          <input type="text" id="searchTx" oninput="renderAll()" placeholder="Filtrar descrição..."
+            class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1 text-xs focus:outline-none" />
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400">
+                <th class="py-2 px-2">Data</th>
+                <th class="py-2 px-2">Descrição</th>
+                <th class="py-2 px-2">Categoria</th>
+                <th class="py-2 px-2">Meio</th>
+                <th class="py-2 px-2">Parcela</th>
+                <th class="py-2 px-2 text-right">Seu Custo (R$)</th>
+                <th class="py-2 px-2 text-center">Ação</th>
+              </tr>
+            </thead>
+            <tbody id="txTableBody" class="divide-y divide-slate-800/60"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== ABA 3: CAIXINHAS & METAS ==================== -->
+    <section id="view-goals" class="hidden space-y-6">
+      <div class="card p-5">
+        <h2 class="text-base font-bold">🎯 Caixinhas Virtuais (Alocação do CDB 120% CDI)</h2>
+        <p class="text-xs text-slate-400 mt-1">Acompanhe tanto o percentual concluído (%) quanto o valor exato restante em Reais (R$).</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5" id="goalsGrid"></div>
+      </div>
+    </section>
+
+    <!-- ==================== ABA 4: SIMULADOR JUROS ==================== -->
+    <section id="view-simulator" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="card p-5 lg:col-span-5 space-y-4">
+          <h2 class="text-base font-bold">📈 Simulador de Juros Compostos</h2>
+          <div class="space-y-3 text-xs">
+            <div>
+              <label class="text-slate-400">Capital Inicial (R$)</label>
+              <input type="number" id="simInitial" value="2600" oninput="runCompoundSim()" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 font-mono" />
+            </div>
+            <div>
+              <label class="text-slate-400">Aporte Mensal (R$)</label>
+              <input type="number" id="simMonthly" value="420" oninput="runCompoundSim()" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 font-mono" />
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-slate-400">Taxa Mensal Líquida (%)</label>
+                <input type="number" step="0.05" id="simRate" value="1.05" oninput="runCompoundSim()" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 font-mono" />
+              </div>
+              <div>
+                <label class="text-slate-400">Prazo (Meses)</label>
+                <input type="number" id="simMonths" value="36" oninput="runCompoundSim()" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 font-mono" />
+              </div>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2 text-xs">
+            <div class="flex justify-between"><span>Total Aportado:</span><strong class="font-mono" id="simOutPocket">R$ 0,00</strong></div>
+            <div class="flex justify-between"><span>Rendimentos:</span><strong class="font-mono text-emerald-400" id="simInterestEarned">+R$ 0,00</strong></div>
+            <div class="flex justify-between text-sm pt-2 border-t border-slate-800"><span>Patrimônio Final:</span><strong class="font-mono text-emerald-400" id="simFinalTotal">R$ 0,00</strong></div>
+          </div>
+        </div>
+        <div class="card p-5 lg:col-span-7">
+          <h3 class="text-sm font-bold mb-3">Projeção de Crescimento Patrimonial</h3>
+          <div class="relative h-72 w-full"><canvas id="compoundChart"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== ABA 5: CONEXÃO & AJUSTES ==================== -->
+    <section id="view-settings" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <div class="card p-5 space-y-4">
+          <h2 class="text-base font-bold">🔗 Conexão com o Endpoint Google Apps Script</h2>
+          <p class="text-xs text-slate-400">
+            Cole a URL gerada na implantação do seu Apps Script. Cada lançamento feito no site será gravado individualmente como uma linha na aba <code>Lancamentos</code> da sua planilha.
+          </p>
+
+          <div>
+            <label class="text-xs text-slate-400">URL do Web App (Terminada em /exec)</label>
+            <input type="url" id="gasUrlInput" placeholder="https://script.google.com/macros/s/.../exec"
+              class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono" />
+          </div>
+
+          <div class="flex items-center justify-between pt-1">
+            <label class="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
+              <input type="checkbox" id="autoSyncToggle" onchange="saveSettings()" class="rounded bg-slate-800 border-slate-700" />
+              <span>Sincronizar automaticamente ao abrir o site</span>
+            </label>
+            <button onclick="saveSettings()" class="px-4 py-1.5 rounded-lg bg-emerald-500 text-slate-950 font-bold text-xs">
+              Salvar Conexão
+            </button>
+          </div>
+
+          <div class="pt-4 border-t border-slate-800 flex flex-wrap gap-2">
+            <button onclick="pullFromSheets()" class="text-xs px-3 py-2 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+              ☁️↓ Ler Tabela da Planilha Agora
+            </button>
+            <button onclick="pushFullTableToSheets()" class="text-xs px-3 py-2 rounded-lg bg-blue-500/20 text-blue-300 border border-blue-500/40">
+              ☁️↑ Enviar Histórico Local p/ Tabela
+            </button>
+          </div>
+        </div>
+
+        <div class="card p-5 space-y-4">
+          <h2 class="text-base font-bold">🎨 Preferências & Backup Local</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div>
+              <label class="text-slate-400">Aparência</label>
+              <button onclick="toggleTheme()" class="w-full mt-1 py-2 px-3 rounded-lg bg-slate-800 border border-slate-700 font-semibold text-left">
+                🌓 Alternar Dark / Light Mode
+              </button>
+            </div>
+            <div>
+              <label class="text-slate-400">Pontos Acumulados Inter Loop</label>
+              <input type="number" id="interPointsInput" onchange="updateInterPoints(this.value)"
+                class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 font-mono" />
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-slate-800 flex flex-wrap gap-2">
+            <button onclick="exportBackupJson()" class="text-xs px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700">
+              ⬇️ Exportar Backup (.JSON)
+            </button>
+            <label class="text-xs px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 cursor-pointer">
+              ⬆️ Importar Backup (.JSON)
+              <input type="file" accept=".json" onchange="importBackupJson(event)" class="hidden" />
+            </label>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // ==================== 1. DATAS E FORMATAÇÃO ====================
+    function getLocalISODate() {
+      const tzOffset = (new Date()).getTimezoneOffset() * 60000;
+      return (new Date(Date.now() - tzOffset)).toISOString().slice(0, 10);
+    }
+    function getCurrentYearMonth() { return getLocalISODate().slice(0, 7); }
+    function formatBRL(val) { return Number(val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+
+    const CATEGORIES = [
+      { id: 'doacao', name: '🤝 Doação & Caridade (Fixo)', pct: 5, color: '#a855f7' },
+      { id: 'familia', name: '👨‍👩‍👧 Auxílio Família (Fixo)', pct: 5, color: '#f59e0b' },
+      { id: 'transporte', name: '⛽ Transporte / Gasolina', pct: 20, color: '#3b82f6' },
+      { id: 'fixos', name: '🏠 Custos Fixos (Cel/Cabelo/Acad)', pct: 15, color: '#6366f1' },
+      { id: 'lazer', name: '🍔 Lazer & Comida Fora', pct: 15, color: '#f43f5e' },
+      { id: 'ensino', name: '📚 Ensino & Formação', pct: 10, color: '#06b6d4' },
+      { id: 'metas', name: '🎯 Caixinhas & Reserva (Pé-de-meia)', pct: 30, color: '#10b981' }
+    ];
+
+    const DEFAULT_STATE = {
+      selectedMonth: getCurrentYearMonth(),
+      careerMode: false,
+      baseIncomeStudent: 1400,
+      baseIncomeDoctor: 11500,
+      interPoints: 3700,
+      gasUrl: '',
+      autoSync: true,
+      accounts: { bb: 700, inter: 250, mp: 2600 },
+      goals: [
+        { id: 'g1', name: '🛡️ Reserva de Emergência (6 Meses)', current: 1800, target: 4500, note: 'CDB 120% CDI Mercado Pago' },
+        { id: 'g2', name: '🎓 Custos & Cursos de Formação', current: 600, target: 3000, note: 'Cursos práticos e registro profissional' },
+        { id: 'g3', name: '🏥 Pé-de-Meia Pré-Residência', current: 200, target: 15000, note: 'Fundo para transição de carreira' },
+        { id: 'g4', name: '🚗 Manutenção & Documentos Veículos', current: 0, target: 1500, note: 'Reserva preventiva anual' }
+      ],
+      streaks: {},
+      transactions: []
+    };
+
+    let state = loadState();
+    let doughnutChartInstance = null;
+    let evolutionChartInstance = null;
+    let compoundChartInstance = null;
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem('kaio_finance_tabular_v3');
+        if (!raw) return JSON.parse(JSON.stringify(DEFAULT_STATE));
+        return { ...DEFAULT_STATE, ...JSON.parse(raw) };
+      } catch (e) {
+        return JSON.parse(JSON.stringify(DEFAULT_STATE));
+      }
+    }
+
+    function getMetaBundle() {
+      return {
+        baseIncomeStudent: state.baseIncomeStudent,
+        baseIncomeDoctor: state.baseIncomeDoctor,
+        interPoints: state.interPoints,
+        accounts: state.accounts,
+        goals: state.goals,
+        streaks: state.streaks
+      };
+    }
+
+    function saveLocalAndRender() {
+      localStorage.setItem('kaio_finance_tabular_v3', JSON.stringify(state));
+      renderAll();
+    }
+
+    // ==================== 2. COMUNICAÇÃO COM A TABELA ÚNICA DO APPS SCRIPT ====================
+    async function sendActionToSheets(payload) {
+      const url = (state.gasUrl || '').trim();
+      if (!url) return;
+
+      const badge = document.getElementById('syncBadge');
+      badge.textContent = 'Gravando linha...';
+      badge.className = 'text-[11px] font-normal px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40';
+
+      try {
+        await fetch(url, {
+          method: 'POST',
+          redirect: 'follow',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        badge.textContent = 'Planilha Sincronizada ✓';
+        badge.className = 'text-[11px] font-normal px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+      } catch (err) {
+        console.error(err);
+        badge.textContent = 'Salvo Local (Offline)';
+        badge.className = 'text-[11px] font-normal px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40';
+      }
+    }
+
+    async function pullFromSheets() {
+      const url = (state.gasUrl || document.getElementById('gasUrlInput')?.value || '').trim();
+      if (!url) {
+        switchTab('settings');
+        alert('Cole primeiro a URL do seu Google Apps Script na aba Conexão & Ajustes.');
+        return;
+      }
+
+      const badge = document.getElementById('syncBadge');
+      badge.textContent = 'Lendo Planilha...';
+
+      try {
+        const res = await fetch(url, { method: 'GET', redirect: 'follow' });
+        const data = await res.json();
+        if (data && data.status === 'ok') {
+          state.transactions = Array.isArray(data.transactions) ? data.transactions : [];
+          if (data.meta && Object.keys(data.meta).length > 0) {
+            state.accounts = data.meta.accounts || state.accounts;
+            state.goals = data.meta.goals || state.goals;
+            state.streaks = data.meta.streaks || state.streaks;
+            state.interPoints = data.meta.interPoints ?? state.interPoints;
+            state.baseIncomeStudent = data.meta.baseIncomeStudent ?? state.baseIncomeStudent;
+          }
+          saveLocalAndRender();
+          badge.textContent = 'Tabela Atualizada ✓';
+          badge.className = 'text-[11px] font-normal px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+        }
+      } catch (err) {
+        console.error(err);
+        badge.textContent = 'Erro ao Ler Planilha';
+      }
+    }
+
+    async function pushFullTableToSheets() {
+      await sendActionToSheets({
+        action: 'FULL_SYNC',
+        transactions: state.transactions,
+        meta: getMetaBundle()
+      });
+    }
+
+    // ==================== 3. LANÇAMENTO DE LINHAS (COM PARCELAMENTO E BRB) ====================
+    function addMonthsToYearMonth(ym, add) {
+      const [y, m] = ym.split('-').map(Number);
+      const d = new Date(y, m - 1 + add, 1);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    }
+
+    async function addTransaction(e) {
+      e.preventDefault();
+      const desc = document.getElementById('txDesc').value.trim();
+      const rawTotal = parseFloat(document.getElementById('txAmount').value);
+      const category = document.getElementById('txCategory').value;
+      const method = document.getElementById('txMethod').value;
+      const dateStr = document.getElementById('txDate').value || getLocalISODate();
+      const installments = parseInt(document.getElementById('txInstallments').value || '1', 10);
+      const isFoodOut = document.getElementById('txIsFoodOut').checked;
+
+      if (!desc || isNaN(rawTotal) || rawTotal <= 0) return;
+
+      let brbRule = 1;
+      if (method === 'card_brb') {
+        brbRule = parseFloat(document.getElementById('txBrbRule').value);
+      }
+
+      const baseMonth = dateStr.slice(0, 7);
+      const perInstallmentTotal = rawTotal / installments;
+      const perInstallmentMine = (rawTotal * brbRule) / installments;
+
+      const createdItems = [];
+
+      for (let i = 0; i < installments; i++) {
+        const targetMonth = addMonthsToYearMonth(baseMonth, i);
+        const item = {
+          id: `tx_${Date.now()}_${i}`,
+          date: dateStr,
+          month: targetMonth,
+          desc: installments > 1 ? `${desc} (${i + 1}/${installments})` : desc,
+          category,
+          method,
+          totalAmount: Number(perInstallmentTotal.toFixed(2)),
+          myAmount: Number(perInstallmentMine.toFixed(2)),
+          brbRule,
+          isFoodOut,
+          installmentInfo: `${i + 1}/${installments}`
+        };
+        state.transactions.unshift(item);
+        createdItems.push(item);
+      }
+
+      // Atualiza saldo bancário se for movimentação à vista em conta
+      if (category === 'receita') {
+        if (method === 'pix_bb') state.accounts.bb += rawTotal;
+        else if (method === 'pix_mp') state.accounts.mp += rawTotal;
+        else state.accounts.inter += rawTotal;
+      } else {
+        if (method === 'pix_inter') state.accounts.inter -= rawTotal;
+        else if (method === 'pix_bb') state.accounts.bb -= rawTotal;
+        else if (method === 'pix_mp') state.accounts.mp -= rawTotal;
+      }
+
+      document.getElementById('txDesc').value = '';
+      document.getElementById('txAmount').value = '';
+      document.getElementById('txInstallments').value = '1';
+
+      saveLocalAndRender();
+
+      // Grava as novas linhas diretamente na tabela única do Google Sheets
+      await sendActionToSheets({
+        action: 'ADD_TX',
+        items: createdItems,
+        meta: getMetaBundle()
+      });
+    }
+
+    async function deleteTransaction(id) {
+      state.transactions = state.transactions.filter(t => t.id !== id);
+      saveLocalAndRender();
+      await sendActionToSheets({
+        action: 'DELETE_TX',
+        id: id,
+        meta: getMetaBundle()
+      });
+    }
+
+    // ==================== 4. RENDERIZAÇÃO E CÁLCULOS ====================
+    function getActiveBaseIncome() {
+      return state.careerMode ? state.baseIncomeDoctor : state.baseIncomeStudent;
+    }
+
+    function renderAll() {
+      const activeMonth = state.selectedMonth || getCurrentYearMonth();
+      document.getElementById('currentMonthPicker').value = activeMonth;
+      document.getElementById('interPointsInput').value = state.interPoints || 3700;
+      document.getElementById('gasUrlInput').value = state.gasUrl || '';
+      document.getElementById('autoSyncToggle').checked = !!state.autoSync;
+
+      const gross = (Number(state.accounts.bb) || 0) + (Number(state.accounts.inter) || 0) + (Number(state.accounts.mp) || 0);
+      document.getElementById('kpiGrossBalance').textContent = formatBRL(gross);
+      document.getElementById('miniBB').textContent = formatBRL(state.accounts.bb);
+      document.getElementById('miniInter').textContent = formatBRL(state.accounts.inter);
+      document.getElementById('miniMP').textContent = formatBRL(state.accounts.mp);
+      document.getElementById('accBB').textContent = formatBRL(state.accounts.bb);
+      document.getElementById('accInter').textContent = formatBRL(state.accounts.inter);
+      document.getElementById('accMP').textContent = formatBRL(state.accounts.mp);
+
+      const monthTxs = state.transactions.filter(t => (t.month || t.date.slice(0, 7)) === activeMonth);
+
+      let interInvoice = 0, brbTotalLimitUsed = 0, brbMyShare = 0, totalMonthSpent = 0, extraIncomeMonth = 0, foodOutSpent = 0, foodOutCount = 0;
+      const catSpent = {};
+      CATEGORIES.forEach(c => catSpent[c.id] = 0);
+
+      monthTxs.forEach(t => {
+        if (t.category === 'receita') {
+          extraIncomeMonth += Number(t.myAmount || 0);
+          return;
+        }
+        const myCost = Number(t.myAmount || 0);
+        const fullCost = Number(t.totalAmount || myCost);
+
+        totalMonthSpent += myCost;
+        if (catSpent[t.category] !== undefined) catSpent[t.category] += myCost;
+
+        if (t.method === 'card_inter') interInvoice += myCost;
+        else if (t.method === 'card_brb') {
+          brbTotalLimitUsed += fullCost;
+          brbMyShare += myCost;
+        }
+
+        if (t.isFoodOut) {
+          foodOutSpent += myCost;
+          foodOutCount++;
+        }
+      });
+
+      const myOpenInvoices = interInvoice + brbMyShare;
+      const netLiquidityMP = (Number(state.accounts.mp) || 0) - myOpenInvoices;
+
+      const netEl = document.getElementById('kpiNetLiquidity');
+      netEl.textContent = formatBRL(netLiquidityMP);
+      netEl.className = `text-2xl font-bold mt-2 money-val ${netLiquidityMP >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+      document.getElementById('kpiOpenInvoices').textContent = formatBRL(myOpenInvoices);
+
+      const effectiveIncome = getActiveBaseIncome() + extraIncomeMonth;
+      document.getElementById('kpiMonthSpent').textContent = formatBRL(totalMonthSpent);
+      document.getElementById('kpiMonthIncome').textContent = formatBRL(effectiveIncome);
+      document.getElementById('budgetBaseLabel').textContent = formatBRL(effectiveIncome);
+      document.getElementById('kpiPointsInter').textContent = `⭐ ${Number(state.interPoints).toLocaleString('pt-BR')} pts Inter`;
+
+      const pctTotal = effectiveIncome > 0 ? Math.min(100, (totalMonthSpent / effectiveIncome) * 100) : 0;
+      const budgetBar = document.getElementById('kpiBudgetBar');
+      budgetBar.style.width = `${pctTotal}%`;
+      budgetBar.className = `h-full transition-all duration-300 ${pctTotal >= 100 ? 'bg-rose-500' : pctTotal >= 80 ? 'bg-amber-400' : 'bg-emerald-500'}`;
+
+      document.getElementById('kpiFoodOutSpent').textContent = formatBRL(foodOutSpent);
+      document.getElementById('foodOutCount').textContent = `${foodOutCount}x no mês`;
+      document.getElementById('kpiArbitrageGain').textContent = `+${formatBRL(Math.max(0, Number(state.accounts.mp) * 0.0105))}/mês`;
+
+      document.getElementById('cardInterUsed').textContent = formatBRL(interInvoice);
+      document.getElementById('cardInterBar').style.width = `${Math.min(100, (interInvoice / 4000) * 100)}%`;
+      document.getElementById('cardBRBMyShare').textContent = formatBRL(brbMyShare);
+      document.getElementById('cardBRBTotal').textContent = formatBRL(brbTotalLimitUsed);
+      document.getElementById('cardBRBBar').style.width = `${Math.min(100, (brbTotalLimitUsed / 1000) * 100)}%`;
+
+      renderWeeklyStreaks(activeMonth);
+      renderCategoryBudgets(effectiveIncome, catSpent);
+      renderTransactionsTable(monthTxs);
+      renderGoals();
+      renderCharts(catSpent);
+    }
+
+    function renderWeeklyStreaks(activeMonth) {
+      const grid = document.getElementById('weeklyStreakGrid');
+      let count = 0, html = '';
+      for (let w = 1; w <= 4; w++) {
+        const key = `${activeMonth}-W${w}`;
+        const done = !!state.streaks[key];
+        if (done) count++;
+        html += `
+          <button onclick="toggleWeekStreak('${key}')" class="p-3 rounded-lg border text-left transition flex items-center justify-between ${done ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-300' : 'bg-slate-800/50 border-slate-700/70 text-slate-400'}">
+            <div><div class="text-xs font-bold">Semana ${w}</div><div class="text-[11px] opacity-80">${done ? 'Concluída' : 'Pendente'}</div></div>
+            <span class="text-lg">${done ? '✅' : '⬜'}</span>
+          </button>`;
+      }
+      grid.innerHTML = html;
+      document.getElementById('streakCounter').textContent = `${count}/4 semanas`;
+    }
+
+    function toggleWeekStreak(key) {
+      state.streaks[key] = !state.streaks[key];
+      saveLocalAndRender();
+      sendActionToSheets({ action: 'SAVE_META', meta: getMetaBundle() });
+    }
+
+    function renderCategoryBudgets(effectiveIncome, catSpent) {
+      document.getElementById('categoryBudgetList').innerHTML = CATEGORIES.map(cat => {
+        const limit = (effectiveIncome * cat.pct) / 100;
+        const spent = catSpent[cat.id] || 0;
+        const pct = limit > 0 ? (spent / limit) * 100 : 0;
+        const barColor = pct >= 100 ? 'bg-rose-500' : pct >= 80 ? 'bg-amber-400' : 'bg-emerald-500';
+        const badge = pct >= 100
+          ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-semibold">100%+</span>'
+          : pct >= 80 ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold">80%+</span>' : '';
+
+        return `
+          <div class="space-y-1">
+            <div class="flex justify-between items-center text-xs">
+              <span class="font-medium flex items-center gap-2">${cat.name} <span class="text-slate-500">(${cat.pct}%)</span> ${badge}</span>
+              <span class="money-val"><strong class="text-slate-200">${formatBRL(spent)}</strong> <span class="text-slate-400">/ ${formatBRL(limit)}</span></span>
+            </div>
+            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+              <div class="${barColor} h-full transition-all duration-300" style="width: ${Math.min(100, pct)}%"></div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function renderTransactionsTable(monthTxs) {
+      const query = (document.getElementById('searchTx')?.value || '').toLowerCase();
+      const filtered = monthTxs.filter(t => t.desc.toLowerCase().includes(query));
+      const tbody = document.getElementById('txTableBody');
+      const methodLabels = { card_inter: '💳 Inter', card_brb: '💳 BRB', pix_inter: '⚡ Pix Inter', pix_bb: '🏦 BB', pix_mp: '📈 Merc. Pago' };
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-500">Nenhum lançamento neste mês.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(t => {
+        const isInc = t.category === 'receita';
+        return `
+          <tr class="hover:bg-slate-800/40">
+            <td class="py-2.5 px-2 font-mono text-slate-400">${t.date.slice(8,10)}/${t.date.slice(5,7)}</td>
+            <td class="py-2.5 px-2 font-medium text-slate-200">${t.desc} ${t.isFoodOut ? '<span class="ml-1 text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300">🍔</span>' : ''}</td>
+            <td class="py-2.5 px-2 text-slate-400">${t.category.toUpperCase()}</td>
+            <td class="py-2.5 px-2 text-slate-300">${methodLabels[t.method] || t.method}</td>
+            <td class="py-2.5 px-2 font-mono text-slate-400">${t.installmentInfo || '1/1'}</td>
+            <td class="py-2.5 px-2 text-right money-val font-bold ${isInc ? 'text-emerald-400' : 'text-slate-200'}">${isInc ? '+' : '-'}${formatBRL(t.myAmount)}</td>
+            <td class="py-2.5 px-2 text-center"><button onclick="deleteTransaction('${t.id}')" class="text-rose-400 hover:text-rose-300 px-2">✕</button></td>
+          </tr>`;
+      }).join('');
+    }
+
+    function renderGoals() {
+      document.getElementById('goalsGrid').innerHTML = state.goals.map(g => {
+        const pct = g.target > 0 ? Math.min(100, (g.current / g.target) * 100) : 0;
+        const rem = Math.max(0, g.target - g.current);
+        return `
+          <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700/80 space-y-3">
+            <div class="flex justify-between items-start">
+              <div><h4 class="font-bold text-sm text-white">${g.name}</h4><p class="text-[11px] text-slate-400">${g.note}</p></div>
+              <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">${pct.toFixed(1)}%</span>
+            </div>
+            <div class="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden"><div class="bg-emerald-500 h-full" style="width: ${pct}%"></div></div>
+            <div class="flex justify-between text-xs pt-1">
+              <span>Guardado: <strong class="text-emerald-400 money-val">${formatBRL(g.current)}</strong></span>
+              <span>Faltam: <strong class="text-amber-400 money-val">${formatBRL(rem)}</strong></span>
+            </div>
+            <div class="flex gap-2 pt-2 border-t border-slate-800">
+              <button onclick="adjustGoal('${g.id}', 50)" class="text-xs px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300">+R$ 50</button>
+              <button onclick="adjustGoal('${g.id}', 100)" class="text-xs px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300">+R$ 100</button>
+              <button onclick="promptGoalEdit('${g.id}')" class="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 ml-auto">✏️ Editar</button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function adjustGoal(id, delta) {
+      const g = state.goals.find(x => x.id === id);
+      if (!g) return;
+      g.current = Math.max(0, Number(g.current) + delta);
+      saveLocalAndRender();
+      sendActionToSheets({ action: 'SAVE_META', meta: getMetaBundle() });
+    }
+
+    function promptGoalEdit(id) {
+      const g = state.goals.find(x => x.id === id);
+      if (!g) return;
+      const c = prompt(`Valor guardado em "${g.name}":`, g.current);
+      if (c === null) return;
+      const t = prompt(`Meta total para "${g.name}":`, g.target);
+      if (t === null) return;
+      g.current = parseFloat(c) || 0;
+      g.target = parseFloat(t) || 1;
+      saveLocalAndRender();
+      sendActionToSheets({ action: 'SAVE_META', meta: getMetaBundle() });
+    }
+
+    function renderCharts(catSpent) {
+      const ctxD = document.getElementById('doughnutChart');
+      if (doughnutChartInstance) doughnutChartInstance.destroy();
+      const vals = CATEGORIES.map(c => catSpent[c.id] || 0);
+      doughnutChartInstance = new Chart(ctxD, {
+        type: 'doughnut',
+        data: {
+          labels: CATEGORIES.map(c => c.name.split(' ')[1]),
+          datasets: [{ data: vals.every(v => v === 0) ? [1] : vals, backgroundColor: vals.every(v => v === 0) ? ['#334155'] : CATEGORIES.map(c => c.color), borderWidth: 0 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 11 } } } } }
+      });
+
+      const ctxE = document.getElementById('evolutionChart');
+      if (evolutionChartInstance) evolutionChartInstance.destroy();
+      const monthsMap = {};
+      state.transactions.forEach(t => {
+        const m = t.month || t.date.slice(0, 7);
+        if (!monthsMap[m]) monthsMap[m] = 0;
+        if (t.category !== 'receita') monthsMap[m] += Number(t.myAmount || 0);
+      });
+      const sorted = Object.keys(monthsMap).sort().slice(-6);
+      evolutionChartInstance = new Chart(ctxE, {
+        type: 'bar',
+        data: {
+          labels: sorted.length ? sorted : [state.selectedMonth],
+          datasets: [
+            { label: 'Gastos (R$)', data: sorted.length ? sorted.map(m => monthsMap[m]) : [0], backgroundColor: '#f43f5e', borderRadius: 4 },
+            { label: 'Renda Base (R$)', data: (sorted.length ? sorted : [1]).map(() => getActiveBaseIncome()), backgroundColor: '#10b981', borderRadius: 4 }
+          ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { x: { ticks: { color: '#94a3b8' } }, y: { ticks: { color: '#94a3b8' } } }, plugins: { legend: { labels: { color: '#94a3b8' } } } }
+      });
+    }
+
+    function runCompoundSim() {
+      const init = parseFloat(document.getElementById('simInitial').value) || 0;
+      const monthly = parseFloat(document.getElementById('simMonthly').value) || 0;
+      const rate = (parseFloat(document.getElementById('simRate').value) || 0) / 100;
+      const months = Math.min(240, Math.max(1, parseInt(document.getElementById('simMonths').value || '12', 10)));
+      let bal = init, inv = init;
+      const labels = ['M0'], totS = [init], invS = [init];
+      for (let m = 1; m <= months; m++) {
+        bal = bal * (1 + rate) + monthly;
+        inv += monthly;
+        labels.push(`M${m}`);
+        totS.push(Number(bal.toFixed(2)));
+        invS.push(Number(inv.toFixed(2)));
+      }
+      document.getElementById('simOutPocket').textContent = formatBRL(inv);
+      document.getElementById('simInterestEarned').textContent = '+' + formatBRL(bal - inv);
+      document.getElementById('simFinalTotal').textContent = formatBRL(bal);
+
+      const ctx = document.getElementById('compoundChart');
+      if (compoundChartInstance) compoundChartInstance.destroy();
+      compoundChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Patrimônio Total', data: totS, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true },
+            { label: 'Aportado', data: invS, borderColor: '#64748b', borderDash: [5, 5], fill: false }
+          ]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+    }
+
+    // ==================== 5. AUXILIARES DE UI ====================
+    function handleMethodChange() {
+      const m = document.getElementById('txMethod').value;
+      document.getElementById('brbSplitBox').classList.toggle('hidden', m !== 'card_brb');
+      document.getElementById('installmentBox').classList.toggle('hidden', m !== 'card_inter' && m !== 'card_brb');
+    }
+    function handleCategoryChange() {
+      document.getElementById('txIsFoodOut').checked = (document.getElementById('txCategory').value === 'lazer');
+    }
+    function quickFill(desc, amount, cat, method, food) {
+      switchTab('transactions');
+      document.getElementById('txDesc').value = desc;
+      document.getElementById('txAmount').value = amount;
+      document.getElementById('txCategory').value = cat;
+      document.getElementById('txMethod').value = method;
+      document.getElementById('txIsFoodOut').checked = food;
+      handleMethodChange();
+    }
+    function switchTab(t) {
+      ['dashboard', 'transactions', 'goals', 'simulator', 'settings'].forEach(id => {
+        document.getElementById(`view-${id}`).classList.add('hidden');
+        document.getElementById(`tab-${id}`).classList.remove('active');
+      });
+      document.getElementById(`view-${t}`).classList.remove('hidden');
+      document.getElementById(`tab-${t}`).classList.add('active');
+      if (t === 'simulator') runCompoundSim();
+    }
+    function changeMonth(ym) { if (ym) { state.selectedMonth = ym; saveLocalAndRender(); } }
+    function togglePrivacy() { document.body.classList.toggle('privacy-blur'); }
+    function toggleTheme() { document.documentElement.classList.toggle('light'); document.documentElement.classList.toggle('dark'); }
+    function toggleCareerMode() {
+      state.careerMode = !state.careerMode;
+      document.getElementById('careerModeLabel').textContent = state.careerMode ? 'Pós-Formatura' : 'Internato';
+      saveLocalAndRender();
+    }
+    function editAccountBalance(k) {
+      const v = prompt('Novo saldo (R$):', state.accounts[k]);
+      if (v === null) return;
+      state.accounts[k] = parseFloat(v) || 0;
+      saveLocalAndRender();
+      sendActionToSheets({ action: 'SAVE_META', meta: getMetaBundle() });
+    }
+    function payMonthInvoices() {
+      const activeMonth = state.selectedMonth;
+      const sum = state.transactions
+        .filter(t => (t.month || t.date.slice(0, 7)) === activeMonth && t.category !== 'receita' && (t.method === 'card_inter' || t.method === 'card_brb'))
+        .reduce((acc, t) => acc + Number(t.myAmount || 0), 0);
+      if (sum <= 0) return alert('Sem faturas neste mês.');
+      if (confirm(`Abater ${formatBRL(sum)} do saldo do Mercado Pago?`)) {
+        state.accounts.mp = Number((state.accounts.mp - sum).toFixed(2));
+        saveLocalAndRender();
+        sendActionToSheets({ action: 'SAVE_META', meta: getMetaBundle() });
+      }
+    }
+    function promptUpdateIncome() {
+      const v = prompt('Nova Renda Base Mensal (R$):', getActiveBaseIncome());
+      if (v === null) return;
+      if (state.careerMode) state.baseIncomeDoctor = parseFloat(v) || 11500;
+      else state.baseIncomeStudent = parseFloat(v) || 1400;
+      saveLocalAndRender();
+      sendActionToSheets({ action: 'SAVE_META', meta: getMetaBundle() });
+    }
+    function updateInterPoints(v) {
+      state.interPoints = parseInt(v || '0', 10);
+      saveLocalAndRender();
+      sendActionToSheets({ action: 'SAVE_META', meta: getMetaBundle() });
+    }
+    function saveSettings() {
+      state.gasUrl = document.getElementById('gasUrlInput').value.trim();
+      state.autoSync = document.getElementById('autoSyncToggle').checked;
+      saveLocalAndRender();
+      alert('Conexão salva!');
+    }
+    function exportBackupJson() {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' }));
+      a.download = `financeiro_${getLocalISODate()}.json`;
+      a.click();
+    }
+    function importBackupJson(e) {
+      const f = e.target.files[0];
+      if (!f) return;
+      const r = new FileReader();
+      r.onload = ev => { state = { ...DEFAULT_STATE, ...JSON.parse(ev.target.result) }; saveLocalAndRender(); };
+      r.readAsText(f);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('txDate').value = getLocalISODate();
+      renderAll();
+      if (state.autoSync && state.gasUrl) pullFromSheets();
+    });
+  </script>
+</body>
+</html>
