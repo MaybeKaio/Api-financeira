@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>FinControl Studio v5</title>
+  <title>FinControl Studio</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -34,12 +34,6 @@
       background-color: var(--bg-main);
       color: #f1f5f9;
     }
-    .theme-light {
-      --bg-main: #f8fafc;
-      --bg-card: #ffffff;
-      --border-card: #e2e8f0;
-      color: #0f172a;
-    }
     .theme-oled {
       --bg-main: #000000;
       --bg-card: #090d16;
@@ -50,6 +44,81 @@
       --bg-card: #1e293b;
       --border-card: #334155;
     }
+
+    /* ==================== MODO CLARO (ALTO CONTRASTE CORRIGIDO) ==================== */
+    body.theme-light {
+      --bg-main: #f1f5f9;
+      --bg-card: #ffffff;
+      --border-card: #cbd5e1;
+      color: #0f172a !important;
+    }
+    body.theme-light header {
+      background-color: rgba(255, 255, 255, 0.95) !important;
+      border-bottom-color: #cbd5e1 !important;
+    }
+    body.theme-light .card {
+      background-color: #ffffff !important;
+      border-color: #cbd5e1 !important;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+    /* Força leitura nítida em todos os textos claros quando em Light Mode */
+    body.theme-light .text-white,
+    body.theme-light .text-slate-100,
+    body.theme-light .text-slate-200,
+    body.theme-light .text-slate-300 {
+      color: #0f172a !important;
+    }
+    body.theme-light .text-slate-400,
+    body.theme-light .text-slate-500 {
+      color: #475569 !important;
+    }
+    /* Ajuste de cores de destaque para leitura perfeita no fundo branco */
+    body.theme-light .text-emerald-400,
+    body.theme-light .text-emerald-300 {
+      color: #047857 !important;
+    }
+    body.theme-light .text-rose-400,
+    body.theme-light .text-rose-300 {
+      color: #be123c !important;
+    }
+    body.theme-light .text-amber-400,
+    body.theme-light .text-amber-300 {
+      color: #b45309 !important;
+    }
+    body.theme-light .text-sky-400,
+    body.theme-light .text-sky-300,
+    body.theme-light .text-blue-300 {
+      color: #0369a1 !important;
+    }
+    /* Inputs, selects e caixas secundárias no Modo Claro */
+    body.theme-light input,
+    body.theme-light select,
+    body.theme-light .bg-slate-800,
+    body.theme-light .bg-slate-800\/60,
+    body.theme-light .bg-slate-800\/50,
+    body.theme-light .bg-slate-900,
+    body.theme-light .bg-slate-950 {
+      background-color: #f8fafc !important;
+      color: #0f172a !important;
+      border-color: #cbd5e1 !important;
+    }
+    body.theme-light .border-slate-800,
+    body.theme-light .border-slate-800\/60,
+    body.theme-light .border-slate-700 {
+      border-color: #e2e8f0 !important;
+    }
+    body.theme-light .divide-slate-800\/60 > :not([hidden]) ~ :not([hidden]) {
+      border-color: #e2e8f0 !important;
+    }
+    body.theme-light .calc-btn {
+      background-color: #e2e8f0 !important;
+      border-color: #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+    body.theme-light .calc-btn:hover {
+      background-color: #cbd5e1 !important;
+    }
+
     .card {
       background-color: var(--bg-card);
       border: 1px solid var(--border-card);
@@ -63,10 +132,22 @@
       font-family: 'JetBrains Mono', monospace;
       transition: filter 0.2s ease;
     }
+    .tab-btn {
+      color: #94a3b8;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s ease;
+    }
+    body.theme-light .tab-btn {
+      color: #475569;
+    }
     .tab-btn.active {
       border-bottom: 2px solid var(--accent);
-      color: var(--accent);
-      font-weight: 600;
+      color: var(--accent) !important;
+      font-weight: 700;
+    }
+    body.theme-light .tab-btn.active {
+      color: #047857 !important;
+      border-bottom-color: #047857 !important;
     }
     .calc-btn {
       background-color: rgba(30, 41, 59, 0.7);
@@ -76,101 +157,100 @@
       font-weight: 600;
       transition: all 0.12s;
     }
-    .calc-btn:hover {
-      background-color: rgba(51, 65, 85, 0.9);
-    }
-    .calc-btn:active {
-      transform: scale(0.96);
-    }
+    .calc-btn:hover { background-color: rgba(51, 65, 85, 0.9); }
+    .calc-btn:active { transform: scale(0.96); }
   </style>
 </head>
 <body class="min-h-screen pb-20 transition-colors duration-200">
 
   <!-- TOP HEADER -->
-  <header class="sticky top-0 z-30 backdrop-blur-md bg-slate-900/90 border-b border-slate-800 px-4 py-3">
-    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center gap-3">
-        <div id="brandLogoBox" class="w-9 h-9 rounded-lg bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-bold font-mono">
+  <header class="sticky top-0 z-30 backdrop-blur-md bg-slate-900/90 border-b border-slate-800 px-4 py-2.5">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5">
+        <div id="brandLogoBox" class="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-bold font-mono text-sm">
           R$
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 id="brandTitle" class="font-bold text-base sm:text-lg leading-tight">Controle Financeiro Pessoal</h1>
-            <span id="syncBadge" class="text-[11px] font-normal px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">Local</span>
+            <h1 id="brandTitle" class="font-bold text-sm sm:text-base leading-tight text-white">FinControl</h1>
+            <span id="syncBadge" class="text-[10px] font-normal px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">Local</span>
           </div>
-          <p id="brandMotto" class="text-xs text-slate-400">Fatura Fecha dia 31 • Vence dia 07 • Datas em DD/MM/AAAA</p>
+          <p id="brandMotto" class="text-[11px] text-slate-400 hidden sm:block">Fecha 31 • Vence 07 • DD/MM/AAAA</p>
         </div>
       </div>
 
       <!-- Controles de Topo -->
-      <div class="flex items-center gap-2 flex-wrap">
-        <div class="flex items-center bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 gap-1">
-          <button onclick="shiftMonth(-1)" class="text-xs px-1.5 text-slate-400 hover:text-white">◀</button>
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <div class="flex items-center bg-slate-800 border border-slate-700 rounded-lg px-1.5 py-1 gap-1">
+          <button onclick="shiftMonth(-1)" class="text-xs px-1 text-slate-400 hover:text-white">◀</button>
           <span id="currentMonthDisplay" class="text-xs font-mono font-bold text-emerald-400 px-1">10/2026</span>
-          <button onclick="shiftMonth(1)" class="text-xs px-1.5 text-slate-400 hover:text-white">▶</button>
+          <button onclick="shiftMonth(1)" class="text-xs px-1 text-slate-400 hover:text-white">▶</button>
         </div>
 
-        <button onclick="toggleCareerMode()" class="text-xs px-2.5 py-1.5 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 transition">
+        <button onclick="toggleCareerMode()" class="text-xs px-2 py-1 rounded-lg border border-slate-700 bg-slate-800 text-slate-200">
           🩺 <strong id="careerModeLabel">Internato</strong>
         </button>
 
-        <button onclick="togglePrivacy()" class="text-xs px-2.5 py-1.5 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700" title="Modo Privacidade">
+        <button onclick="togglePrivacy()" class="text-xs px-2 py-1 rounded-lg border border-slate-700 bg-slate-800" title="Ocultar Valores">
           👁️
         </button>
 
-        <button onclick="pullFromSheets()" class="text-xs px-2.5 py-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 font-medium">
-          🔄 Ler Planilha
+        <button onclick="pullFromSheets(true)" class="text-xs px-2.5 py-1 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 font-medium" title="Baixar da Planilha">
+          🔄 Ler
         </button>
 
-        <button onclick="pushFullTableToSheets()" class="text-xs px-2.5 py-1.5 rounded-lg border border-blue-500/40 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 font-medium">
-          ☁️↑ Salvar Tudo
+        <button onclick="pushFullTableToSheets()" class="text-xs px-2.5 py-1 rounded-lg border border-blue-500/40 bg-blue-500/10 text-blue-300 font-medium" title="Enviar para a Planilha">
+          ☁️↑ Salvar
         </button>
       </div>
     </div>
 
-    <!-- NAVEGAÇÃO -->
-    <nav class="max-w-7xl mx-auto mt-3 flex gap-1 overflow-x-auto border-b border-slate-800 text-xs sm:text-sm">
-      <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn active px-3 py-2 whitespace-nowrap">📊 Visão Geral & Orçamento</button>
-      <button onclick="switchTab('transactions')" id="tab-transactions" class="tab-btn px-3 py-2 whitespace-nowrap">💳 Lançamentos, Cartões & Calculadora</button>
-      <button onclick="switchTab('debts')" id="tab-debts" class="tab-btn px-3 py-2 whitespace-nowrap">🤝 Dívidas Pessoais (Devo / Me Devem)</button>
-      <button onclick="switchTab('goals')" id="tab-goals" class="tab-btn px-3 py-2 whitespace-nowrap">🎯 Caixinhas & Metas</button>
-      <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn px-3 py-2 whitespace-nowrap">🛠️ Estúdio de Personalização & Ajustes</button>
+    <!-- NAVEGAÇÃO DE ABAS CURTAS (MENOS CARACTERES) -->
+    <nav class="max-w-7xl mx-auto mt-2 flex gap-1 overflow-x-auto border-b border-slate-800 text-xs sm:text-sm">
+      <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn active px-3 py-2 whitespace-nowrap">📊 Painel</button>
+      <button onclick="switchTab('transactions')" id="tab-transactions" class="tab-btn px-3 py-2 whitespace-nowrap">💳 Lançar</button>
+      <button onclick="switchTab('debts')" id="tab-debts" class="tab-btn px-3 py-2 whitespace-nowrap">🤝 Dívidas</button>
+      <button onclick="switchTab('goals')" id="tab-goals" class="tab-btn px-3 py-2 whitespace-nowrap">🎯 Metas</button>
+      <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn px-3 py-2 whitespace-nowrap">⚙️ Ajustes</button>
     </nav>
   </header>
 
   <main class="max-w-7xl mx-auto px-4 pt-5 space-y-6">
 
-    <!-- ==================== ABA 1: DASHBOARD ==================== -->
+    <!-- Banner de Resgate de Dados (Aparece se recuperar dados de versões anteriores) -->
+    <div id="recoveryNotice" class="hidden card p-3 border-emerald-500/50 bg-emerald-950/30 flex items-center justify-between text-xs">
+      <span id="recoveryNoticeText" class="text-emerald-300 font-medium"></span>
+      <button onclick="document.getElementById('recoveryNotice').classList.add('hidden')" class="text-slate-400 px-2">✕</button>
+    </div>
+
+    <!-- ==================== ABA 1: PAINEL ==================== -->
     <section id="view-dashboard" class="space-y-6">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
-        <!-- Card 1: Saldo Total (Contas + Dinheiro Físico) -->
         <div class="card p-4">
           <div class="flex justify-between items-start">
-            <span class="text-xs text-slate-400 uppercase">Saldo Total Disponível</span>
+            <span class="text-xs text-slate-400 uppercase font-semibold">Saldo Disponível</span>
             <span class="text-[11px] px-2 py-0.5 rounded bg-slate-800 text-slate-300">Contas + Espécie</span>
           </div>
           <div class="text-2xl font-bold mt-2 text-white money-val" id="kpiGrossBalance">R$ 0,00</div>
           <div id="miniAccountsRow" class="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-slate-400 border-t border-slate-800 pt-2"></div>
         </div>
 
-        <!-- Card 2: Liquidez Real Pós-Faturas (Fechamento dia 31 / Vencimento dia 07) -->
         <div class="card p-4 border-emerald-500/30">
           <div class="flex justify-between items-start">
-            <span class="text-xs text-emerald-400 uppercase font-semibold">Liquidez Livre (Pós-Fatura)</span>
+            <span class="text-xs text-emerald-400 uppercase font-semibold">Liquidez Pós-Fatura</span>
             <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300">Vence dia 07</span>
           </div>
           <div class="text-2xl font-bold mt-2 text-emerald-400 money-val" id="kpiNetLiquidity">R$ 0,00</div>
           <p class="text-[11px] text-slate-400 mt-2 border-t border-slate-800 pt-2 flex justify-between">
-            <span>Faturas Mescladas (Fecha 31):</span>
+            <span>Faturas Abertas (Fecha 31):</span>
             <strong class="text-rose-400 money-val" id="kpiOpenInvoices">R$ 0,00</strong>
           </p>
         </div>
 
-        <!-- Card 3: Gasto do Mês vs Renda -->
         <div class="card p-4">
           <div class="flex justify-between items-start">
-            <span class="text-xs text-slate-400 uppercase">Executado no Ciclo</span>
+            <span class="text-xs text-slate-400 uppercase font-semibold">Gasto vs Renda</span>
             <span class="text-xs font-mono text-amber-400" id="kpiPointsInter">⭐ 3.700 pts</span>
           </div>
           <div class="flex items-baseline gap-2 mt-2">
@@ -182,15 +262,14 @@
           </div>
         </div>
 
-        <!-- Card 4: Comida Fora & Balanço de Dívidas Pessoais -->
         <div class="card p-4">
           <div class="flex justify-between items-start">
-            <span class="text-xs text-rose-400 uppercase font-semibold">🍔 Comida Fora / Plantão</span>
+            <span class="text-xs text-rose-400 uppercase font-semibold">🍔 Comida Fora</span>
             <span class="text-[11px] px-2 py-0.5 rounded bg-rose-500/10 text-rose-300" id="foodOutCount">0x</span>
           </div>
           <div class="text-2xl font-bold mt-2 text-rose-400 money-val" id="kpiFoodOutSpent">R$ 0,00</div>
           <p class="text-[11px] text-slate-400 mt-2 border-t border-slate-800 pt-2 flex justify-between">
-            <span>Dívidas Pessoais (Eu Devo):</span>
+            <span>Dívidas Pessoais (Devo):</span>
             <strong class="text-amber-400 money-val" id="kpiPersonalDebt">R$ 0,00</strong>
           </p>
         </div>
@@ -200,11 +279,11 @@
       <div class="card p-4">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
           <div>
-            <h2 class="text-sm font-bold flex items-center gap-2">
-              🔥 Consistência Semanal ("Não Quebre a Corrente")
+            <h2 class="text-sm font-bold flex items-center gap-2 text-white">
+              🔥 Consistência Semanal
               <span id="streakCounter" class="text-xs px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">0/4 semanas</span>
             </h2>
-            <p class="text-xs text-slate-400">Marque cada semana revisada dentro da meta.</p>
+            <p class="text-xs text-slate-400">Marque cada semana revisada dentro do teto planejado.</p>
           </div>
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="weeklyStreakGrid"></div>
@@ -215,12 +294,12 @@
         <div class="card p-5 lg:col-span-7 space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h2 class="text-base font-bold">Divisão do Orçamento (<span class="money-val" id="budgetBaseLabel">R$ 1.400,00</span>)</h2>
-              <p class="text-xs text-slate-400">Soma das categorias alocadas: <strong id="totalPctAllocated" class="text-emerald-400">100%</strong></p>
+              <h2 class="text-base font-bold text-white">Orçamento por Categoria (<span class="money-val" id="budgetBaseLabel">R$ 1.400,00</span>)</h2>
+              <p class="text-xs text-slate-400">Alocação total: <strong id="totalPctAllocated" class="text-emerald-400">100%</strong></p>
             </div>
             <div class="flex gap-2">
-              <button onclick="promptUpdateIncome()" class="text-xs px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700">✏️ Renda Base</button>
-              <button onclick="switchTab('settings')" class="text-xs px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">⚙️ Categorias</button>
+              <button onclick="promptUpdateIncome()" class="text-xs px-2.5 py-1 rounded bg-slate-800 text-emerald-400 border border-slate-700 font-medium">✏️ Renda</button>
+              <button onclick="switchTab('settings')" class="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700 font-medium">⚙️ Categorias</button>
             </div>
           </div>
           <div id="categoryBudgetList" class="space-y-3 pt-1"></div>
@@ -228,42 +307,45 @@
 
         <div class="lg:col-span-5 space-y-6">
           <div class="card p-4">
-            <h3 class="text-sm font-bold mb-2">Gastos por Categoria</h3>
+            <h3 class="text-sm font-bold mb-2 text-white">Divisão de Gastos</h3>
             <div class="relative h-56 w-full"><canvas id="doughnutChart"></canvas></div>
           </div>
           <div class="card p-4">
-            <h3 class="text-sm font-bold mb-2">Histórico de Competência (MM/AAAA)</h3>
+            <h3 class="text-sm font-bold mb-2 text-white">Evolução por Ciclo (MM/AAAA)</h3>
             <div class="relative h-48 w-full"><canvas id="evolutionChart"></canvas></div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ==================== ABA 2: LANÇAMENTOS, CARTÕES E CALCULADORA ==================== -->
+    <!-- ==================== ABA 2: LANÇAR ==================== -->
     <section id="view-transactions" class="hidden space-y-6">
       
-      <!-- SALDOS DAS CONTAS (INCLUINDO DINHEIRO FÍSICO) E CARTÕES (COM AJUSTE MANUAL DE FATURA) -->
+      <!-- CONTAS E CARTÕES (COM EDIÇÃO LIVRE DE LIMITE) -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
         
-        <!-- Contas Bancárias + Carteira Física (6 colunas) -->
+        <!-- Contas Bancárias + Dinheiro Físico -->
         <div class="card p-4 lg:col-span-6 space-y-3">
           <div class="flex justify-between items-center">
-            <h3 class="text-sm font-bold">🏦 Contas & Dinheiro Físico (Espécie)</h3>
-            <button onclick="openAccountModal()" class="text-xs px-2 py-1 rounded bg-slate-800 text-emerald-400 border border-slate-700">+ Nova Conta</button>
+            <h3 class="text-sm font-bold text-white">🏦 Contas & Dinheiro Físico</h3>
+            <button onclick="openAccountModal()" class="text-xs px-2.5 py-1 rounded bg-slate-800 text-emerald-400 border border-slate-700 font-medium">+ Conta</button>
           </div>
           <div id="accountsCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
         </div>
 
-        <!-- Cartões de Crédito: Fecha dia 31 / Vence dia 07 + Botão de Ajuste Exato (6 colunas) -->
+        <!-- Cartões de Crédito (Edição de Limite, Nome e Fatura Exata) -->
         <div class="card p-4 lg:col-span-6 space-y-3">
           <div class="flex flex-wrap justify-between items-center gap-2">
             <div>
-              <h3 class="text-sm font-bold">💳 Fatura Mesclada (Fecha dia 31 • Vence dia 07)</h3>
-              <p class="text-[11px] text-slate-400">Não bateu com o app do banco? Clique em <strong>"Ajustar Valor Real"</strong>.</p>
+              <h3 class="text-sm font-bold text-white">💳 Cartões & Limites (Fecha 31 • Vence 07)</h3>
+              <p class="text-[11px] text-slate-400">Altere o limite livremente ou ajuste a fatura real do banco.</p>
             </div>
-            <button onclick="payMonthInvoices()" class="text-xs px-2.5 py-1.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30 font-semibold">
-              ✔️ Pagar Fatura (Dia 07)
-            </button>
+            <div class="flex gap-1.5">
+              <button onclick="openNewCardModal()" class="text-xs px-2.5 py-1 rounded bg-slate-800 text-sky-400 border border-slate-700 font-medium">+ Cartão</button>
+              <button onclick="payMonthInvoices()" class="text-xs px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold">
+                ✔️ Quitar Fatura
+              </button>
+            </div>
           </div>
           <div id="cardsCardsGrid" class="space-y-2.5"></div>
         </div>
@@ -272,19 +354,18 @@
       <!-- BOTÕES DE LANÇAMENTO RÁPIDO -->
       <div class="card p-4">
         <div class="flex justify-between items-center mb-2.5">
-          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">⚡ Lançamentos Rápidos (1-Toque)</span>
-          <button onclick="openQuickBtnModal()" class="text-xs text-emerald-400 hover:underline">+ Criar Atalho</button>
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">⚡ Atalhos Rápidos (1-Toque)</span>
+          <button onclick="openQuickBtnModal()" class="text-xs text-emerald-400 hover:underline font-medium">+ Novo Atalho</button>
         </div>
         <div id="quickButtonsContainer" class="flex flex-wrap gap-2"></div>
       </div>
 
-      <!-- FORMULÁRIO DE LANÇAMENTO + CALCULADORA RÁPIDA LADO A LADO -->
+      <!-- FORMULÁRIO + CALCULADORA LADO A LADO -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
         
-        <!-- Formulário de Lançamento (8 Colunas) -->
         <form id="txForm" onsubmit="saveTransactionForm(event)" class="card p-5 lg:col-span-8 space-y-4">
           <div class="flex justify-between items-center">
-            <h3 id="txFormTitle" class="text-sm font-bold text-emerald-400">➕ Novo Lançamento (Formato DD/MM/AAAA)</h3>
+            <h3 id="txFormTitle" class="text-sm font-bold text-emerald-400">➕ Registrar Gasto ou Receita</h3>
             <button type="button" id="cancelEditBtn" onclick="cancelTxEdit()" class="hidden text-xs px-2.5 py-1 rounded bg-rose-500/20 text-rose-300">Cancelar Edição</button>
           </div>
           <input type="hidden" id="editingTxId" value="" />
@@ -316,15 +397,14 @@
 
             <div>
               <label class="text-xs text-slate-400">Data (DD/MM/AAAA)</label>
-              <input type="text" id="txDateBR" required maxlength="10" placeholder="27/10/2026" oninput="maskDateBR(this)"
+              <input type="text" id="txDateBR" required maxlength="10" placeholder="28/10/2026" oninput="maskDateBR(this)"
                 class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:border-emerald-500" />
             </div>
           </div>
 
-          <!-- Opções do Cartão (Fechamento dia 31, Parcelas e Divisão BRB) -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-slate-800">
             <div id="installmentBox">
-              <label class="text-xs text-slate-400">Parcelas na Fatura</label>
+              <label class="text-xs text-slate-400">Parcelamento</label>
               <select id="txInstallments" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs">
                 <option value="1">1x (Fatura Atual)</option>
                 <option value="2">2x sem juros</option>
@@ -337,20 +417,20 @@
             </div>
 
             <div id="splitRuleBox">
-              <label class="text-xs text-sky-400 font-semibold">Quem paga esta compra?</label>
+              <label class="text-xs text-sky-400 font-semibold">Divisão do Cartão</label>
               <select id="txSplitRule" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs">
                 <option value="1">Eu pago 100%</option>
-                <option value="0.5">Dividido 50% (Ex: Mãe)</option>
-                <option value="0">Pai/Outro paga 100% (Consome só limite)</option>
+                <option value="0.5">Dividido 50% (Mãe/Outro)</option>
+                <option value="0">Pai/Outro paga 100% (Só limite)</option>
               </select>
             </div>
 
             <div class="space-y-1.5 pt-1">
               <label class="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
                 <input type="checkbox" id="txIsFoodOut" class="rounded bg-slate-800 border-slate-700 text-rose-500" />
-                <span>🍔 Tag <strong>"Comida Fora"</strong></span>
+                <span>🍔 Marcar <strong>"Comida Fora"</strong></span>
               </label>
-              <label id="afterClosingBox" class="flex items-center gap-2 text-xs text-amber-300 cursor-pointer" title="Compras feitas após o fechamento do dia 31 caem na fatura do mês seguinte">
+              <label id="afterClosingBox" class="flex items-center gap-2 text-xs text-amber-400 cursor-pointer">
                 <input type="checkbox" id="txNextInvoice" class="rounded bg-slate-800 border-slate-700 text-amber-500" />
                 <span>⏭️ Pós-fechamento dia 31 (Próx. fatura)</span>
               </label>
@@ -364,21 +444,19 @@
           </div>
         </form>
 
-        <!-- CALCULADORA RÁPIDA AO LADO DOS LANÇAMENTOS (4 Colunas) -->
+        <!-- CALCULADORA RÁPIDA AO LADO -->
         <div class="card p-4 lg:col-span-4 flex flex-col justify-between space-y-3 border-emerald-500/30">
           <div class="flex justify-between items-center">
-            <h3 class="text-sm font-bold flex items-center gap-1.5">🧮 Calculadora Rápida</h3>
-            <span class="text-[11px] text-slate-400">Some notas, divida racha ou calcule troco</span>
+            <h3 class="text-sm font-bold text-white">🧮 Calculadora Rápida</h3>
+            <span class="text-[11px] text-slate-400">Cálculo instantâneo</span>
           </div>
 
-          <!-- Visor da Calculadora -->
           <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-right space-y-1">
             <div id="calcHistory" class="text-xs font-mono text-slate-500 h-4 truncate"></div>
             <input type="text" id="calcDisplay" placeholder="0" onkeydown="handleCalcKey(event)"
               class="w-full bg-transparent text-right text-2xl font-bold font-mono text-emerald-400 focus:outline-none" />
           </div>
 
-          <!-- Teclado da Calculadora -->
           <div class="grid grid-cols-4 gap-1.5 text-sm">
             <button type="button" onclick="calcInput('C')" class="calc-btn py-2 text-rose-400">C</button>
             <button type="button" onclick="calcInput('(')" class="calc-btn py-2 text-slate-400">(</button>
@@ -407,32 +485,31 @@
           </div>
 
           <button type="button" onclick="useCalcInForm()" class="w-full py-2 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-xs font-bold transition">
-            ⬅️ Jogar Resultado no Campo "Valor Total (R$)"
+            ⬅️ Usar Valor no Formulário
           </button>
         </div>
-
       </div>
 
-      <!-- TABELA DE LANÇAMENTOS DO CICLO -->
+      <!-- TABELA DE LANÇAMENTOS -->
       <div class="card p-5">
         <div class="flex flex-wrap justify-between items-center gap-2 mb-4">
           <div>
-            <h3 class="text-sm font-bold">📋 Histórico de Lançamentos da Competência Selecionada</h3>
-            <p class="text-[11px] text-slate-400">Datas no formato DD/MM/AAAA. Clique em ✏️ para editar ou ✕ para excluir.</p>
+            <h3 class="text-sm font-bold text-white">📋 Lançamentos do Ciclo</h3>
+            <p class="text-[11px] text-slate-400">Datas em DD/MM/AAAA. Clique em ✏️ para editar qualquer lançamento.</p>
           </div>
-          <input type="text" id="searchTx" oninput="renderAll()" placeholder="Buscar descrição..."
+          <input type="text" id="searchTx" oninput="renderAll()" placeholder="Filtrar descrição..."
             class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs focus:outline-none" />
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse text-xs">
             <thead>
               <tr class="border-b border-slate-800 text-slate-400">
-                <th class="py-2 px-2">Data (DD/MM/AAAA)</th>
+                <th class="py-2 px-2">Data</th>
                 <th class="py-2 px-2">Descrição</th>
                 <th class="py-2 px-2">Categoria</th>
-                <th class="py-2 px-2">Meio / Conta</th>
+                <th class="py-2 px-2">Meio</th>
                 <th class="py-2 px-2">Ciclo</th>
-                <th class="py-2 px-2 text-right">Seu Custo (R$)</th>
+                <th class="py-2 px-2 text-right">Seu Custo</th>
                 <th class="py-2 px-2 text-center">Ações</th>
               </tr>
             </thead>
@@ -442,33 +519,29 @@
       </div>
     </section>
 
-    <!-- ==================== ABA 3: DÍVIDAS PESSOAIS (EU DEVO / ME DEVEM) ==================== -->
+    <!-- ==================== ABA 3: DÍVIDAS ==================== -->
     <section id="view-debts" class="hidden space-y-6">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        <!-- Formulário para anotar Dívida com Alguém (4 colunas) -->
         <form onsubmit="addPersonalDebt(event)" class="card p-5 lg:col-span-4 space-y-4">
-          <h2 class="text-base font-bold">🤝 Registrar "Eu Devo" ou "Me Devem"</h2>
-          <p class="text-xs text-slate-400">
-            Use para anotar quando você pega dinheiro emprestado, divide algo para acertar depois ou empresta seu cartão para alguém.
-          </p>
+          <h2 class="text-base font-bold text-white">🤝 Novo Acerto Pessoal</h2>
+          <p class="text-xs text-slate-400">Anote valores que você deve a alguém ou que devem a você.</p>
 
           <div class="space-y-3 text-xs">
             <div>
-              <label class="text-slate-400">Tipo de Pendência</label>
+              <label class="text-slate-400">Tipo</label>
               <select id="debtType" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2">
-                <option value="owe">🔴 Eu Devo para alguém (Passivo)</option>
-                <option value="owed">🟢 Alguém me Deve (A Receber)</option>
+                <option value="owe">🔴 Eu Devo para alguém</option>
+                <option value="owed">🟢 Alguém me Deve</option>
               </select>
             </div>
             <div>
-              <label class="text-slate-400">Nome da Pessoa</label>
-              <input type="text" id="debtPerson" required placeholder="Ex: Mãe, Pai, Amigo Internato..."
+              <label class="text-slate-400">Pessoa</label>
+              <input type="text" id="debtPerson" required placeholder="Ex: Mãe, Pai, Colega..."
                 class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2" />
             </div>
             <div>
-              <label class="text-slate-400">Motivo / Descrição</label>
-              <input type="text" id="debtReason" required placeholder="Ex: Inteira da gasolina, Lanche plantão..."
+              <label class="text-slate-400">Descrição</label>
+              <input type="text" id="debtReason" required placeholder="Ex: Lanche, Gasolina..."
                 class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2" />
             </div>
             <div class="grid grid-cols-2 gap-2">
@@ -486,81 +559,80 @@
           </div>
 
           <button type="submit" class="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs">
-            Salvar Pendência Pessoal
+            Salvar Pendência
           </button>
         </form>
 
-        <!-- Lista de Quem Eu Devo vs Quem Me Deve (8 colunas) -->
         <div class="card p-5 lg:col-span-8 space-y-4">
-          <div class="flex justify-between items-center">
-            <h3 class="text-sm font-bold">📋 Controle de Acertos Pessoais</h3>
-            <span class="text-xs text-slate-400">Ao clicar em "Quitar", o valor pode ser abatido direto do seu Pix ou Dinheiro Físico</span>
-          </div>
+          <h3 class="text-sm font-bold text-white">📋 Pendências Abertas & Histórico</h3>
           <div id="personalDebtsList" class="space-y-2.5"></div>
         </div>
-
       </div>
     </section>
 
-    <!-- ==================== ABA 4: CAIXINHAS & METAS ==================== -->
+    <!-- ==================== ABA 4: METAS ==================== -->
     <section id="view-goals" class="hidden space-y-6">
       <div class="card p-5">
         <div class="flex justify-between items-center">
           <div>
-            <h2 class="text-base font-bold">🎯 Caixinhas Virtuais & Metas</h2>
-            <p class="text-xs text-slate-400">Crie, edite, renomeie ou exclua qualquer meta livremente.</p>
+            <h2 class="text-base font-bold text-white">🎯 Caixinhas & Metas</h2>
+            <p class="text-xs text-slate-400">Gerencie suas reservas livremente.</p>
           </div>
-          <button onclick="openGoalModal()" class="text-xs px-3 py-1.5 rounded-lg bg-emerald-500 text-slate-950 font-bold">+ Nova Caixinha</button>
+          <button onclick="openGoalModal()" class="text-xs px-3 py-1.5 rounded-lg bg-emerald-500 text-slate-950 font-bold">+ Caixinha</button>
         </div>
         <div id="goalsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5"></div>
       </div>
     </section>
 
-    <!-- ==================== ABA 5: ESTÚDIO DE PERSONALIZAÇÃO & AJUSTES ==================== -->
+    <!-- ==================== ABA 5: AJUSTES ==================== -->
     <section id="view-settings" class="hidden space-y-6">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        <!-- Gerenciador de Categorias (6 colunas) -->
-        <div class="card p-5 lg:col-span-6 space-y-4">
-          <div class="flex justify-between items-center">
-            <div>
-              <h2 class="text-base font-bold">📊 Gerenciador de Categorias</h2>
-              <p class="text-xs text-slate-400">Crie, edite percentuais, mude cores ou exclua categorias.</p>
-            </div>
-            <button onclick="openCategoryModal()" class="text-xs px-3 py-1.5 rounded-lg bg-emerald-500 text-slate-950 font-bold">+ Nova Categoria</button>
-          </div>
-          <div id="settingsCategoriesList" class="space-y-2 max-h-96 overflow-y-auto pr-1"></div>
-        </div>
-
-        <!-- Conexão Google Sheets, Aparência e Backup (6 colunas) -->
+        <!-- Coluna Esquerda: Categorias + Gerenciador de Cartões/Limites (6 colunas) -->
         <div class="lg:col-span-6 space-y-6">
           
-          <!-- Conexão Google Apps Script -->
-          <div class="card p-5 space-y-3">
-            <h2 class="text-base font-bold">☁️ Conexão Google Sheets (v5 Blindado)</h2>
-            <input type="url" id="gasUrlInput" placeholder="https://script.google.com/macros/s/.../exec"
-              class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono" />
-            <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
-              <label class="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
-                <input type="checkbox" id="autoSyncToggle" onchange="saveSettings()" class="rounded bg-slate-800 border-slate-700" />
-                <span>Ler planilha automaticamente ao abrir</span>
-              </label>
-              <button onclick="saveSettings()" class="px-4 py-1.5 rounded-lg bg-emerald-500 text-slate-950 font-bold text-xs">Salvar URL</button>
+          <!-- Categorias -->
+          <div class="card p-5 space-y-4">
+            <div class="flex justify-between items-center">
+              <div>
+                <h2 class="text-base font-bold text-white">📊 Categorias do Orçamento</h2>
+                <p class="text-xs text-slate-400">Edite nomes, emojis e percentuais.</p>
+              </div>
+              <button onclick="openCategoryModal()" class="text-xs px-3 py-1.5 rounded-lg bg-emerald-500 text-slate-950 font-bold">+ Categoria</button>
             </div>
+            <div id="settingsCategoriesList" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
           </div>
 
-          <!-- Personalização Visual -->
-          <div class="card p-5 space-y-3">
-            <h2 class="text-base font-bold">🎨 Personalização de Tema & Textos</h2>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-              <button onclick="setTheme('dark')" class="py-2 rounded bg-slate-800 border border-slate-700">🌑 Dark</button>
-              <button onclick="setTheme('oled')" class="py-2 rounded bg-black border border-slate-800">🖤 OLED</button>
-              <button onclick="setTheme('midnight')" class="py-2 rounded bg-slate-900 border border-blue-900">🌌 Midnight</button>
-              <button onclick="setTheme('light')" class="py-2 rounded bg-slate-200 text-slate-900 font-semibold">☀️ Claro</button>
+          <!-- Gerenciador Completo de Cartões e Limites -->
+          <div class="card p-5 space-y-4">
+            <div class="flex justify-between items-center">
+              <div>
+                <h2 class="text-base font-bold text-white">💳 Limites & Cartões de Crédito</h2>
+                <p class="text-xs text-slate-400">Altere o limite de qualquer cartão ou adicione novos.</p>
+              </div>
+              <button onclick="openNewCardModal()" class="text-xs px-3 py-1.5 rounded-lg bg-sky-500 text-slate-950 font-bold">+ Novo Cartão</button>
             </div>
+            <div id="settingsCardsList" class="space-y-2"></div>
+          </div>
+
+        </div>
+
+        <!-- Coluna Direita: Aparência, Nomes das Abas, Planilha e Backups (6 colunas) -->
+        <div class="lg:col-span-6 space-y-6">
+          
+          <!-- Tema e Nomes Curtos das Abas -->
+          <div class="card p-5 space-y-4">
+            <h2 class="text-base font-bold text-white">🎨 Tema (Modo Claro Corrigido) & Abas</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+              <button onclick="setTheme('dark')" class="py-2 rounded bg-slate-800 text-slate-100 border border-slate-700 font-medium">🌑 Dark</button>
+              <button onclick="setTheme('oled')" class="py-2 rounded bg-black text-slate-100 border border-slate-800 font-medium">🖤 OLED</button>
+              <button onclick="setTheme('midnight')" class="py-2 rounded bg-slate-900 text-slate-100 border border-blue-900 font-medium">🌌 Midnight</button>
+              <button onclick="setTheme('light')" class="py-2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">☀️ Modo Claro</button>
+            </div>
+
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 text-xs">
               <div>
-                <label class="text-slate-400">Título do Painel</label>
+                <label class="text-slate-400">Nome Curto no Topo</label>
                 <input type="text" id="customTitleInput" oninput="updateBranding()" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5" />
               </div>
               <div>
@@ -570,16 +642,34 @@
             </div>
           </div>
 
-          <!-- Backup Manual -->
+          <!-- Conexão Planilha Google -->
           <div class="card p-5 space-y-3">
-            <h2 class="text-base font-bold">📦 Backup & Limpeza</h2>
+            <h2 class="text-base font-bold text-white">☁️ Sincronização Google Sheets</h2>
+            <input type="url" id="gasUrlInput" placeholder="https://script.google.com/macros/s/.../exec"
+              class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono" />
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+              <label class="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
+                <input type="checkbox" id="autoSyncToggle" onchange="saveSettings()" class="rounded bg-slate-800 border-slate-700" />
+                <span>Sincronizar ao abrir (Protegido contra perda local)</span>
+              </label>
+              <button onclick="saveSettings()" class="px-4 py-1.5 rounded-lg bg-emerald-500 text-slate-950 font-bold text-xs">Salvar URL</button>
+            </div>
+          </div>
+
+          <!-- Resgate de Dados Antigos & Backup -->
+          <div class="card p-5 space-y-3">
+            <h2 class="text-base font-bold text-white">🛡️ Resgate de Dados & Backup</h2>
+            <p class="text-xs text-slate-400">Se você digitou gastos antes de atualizar o código, clique em <strong>"Resgatar Dados Antigos do Navegador"</strong>.</p>
             <div class="flex flex-wrap gap-2">
+              <button onclick="recoverLegacyLocalStorage(true)" class="text-xs px-3 py-2 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold">
+                🔍 Resgatar Dados Antigos do Navegador
+              </button>
               <button onclick="exportBackupJson()" class="text-xs px-3 py-2 rounded-lg bg-slate-800 border border-slate-700">⬇️ Exportar .JSON</button>
               <label class="text-xs px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 cursor-pointer">
                 ⬆️ Importar .JSON
                 <input type="file" accept=".json" onchange="importBackupJson(event)" class="hidden" />
               </label>
-              <button onclick="clearOnlyTransactions()" class="text-xs px-3 py-2 rounded-lg bg-amber-950/40 text-amber-300 border border-amber-500/30">🧹 Limpar Apenas Lançamentos</button>
+              <button onclick="clearOnlyTransactions()" class="text-xs px-3 py-2 rounded-lg bg-rose-950/40 text-rose-300 border border-rose-500/30">🧹 Zerar Lançamentos</button>
             </div>
           </div>
 
@@ -591,7 +681,7 @@
   </main>
 
   <script>
-    // ==================== 1. CONVERSORES DE DATA (DD/MM/YYYY <-> YYYY-MM-DD) ====================
+    // ==================== 1. UTILITÁRIOS DE DATA (DD/MM/YYYY) ====================
     function getLocalISODate() {
       const tzOffset = (new Date()).getTimezoneOffset() * 60000;
       return (new Date(Date.now() - tzOffset)).toISOString().slice(0, 10);
@@ -634,7 +724,10 @@
       return Number(val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     }
 
-    // ==================== 2. ESTADO INICIAL COM AS SUAS 7 CATEGORIAS CALIBRADAS (100%) ====================
+    // ==================== 2. ESTADO PADRÃO E RESGATE ANTI-PERDA ====================
+    const STORAGE_KEY = 'kaio_fincontrol_v5';
+    const LEGACY_KEYS = ['kaio_fincontrol_v4', 'kaio_finance_tabular_v3', 'kaio_finance_v2', 'fincontrol_state'];
+
     const DEFAULT_STATE = {
       selectedMonth: getLocalISODate().slice(0, 7),
       careerMode: false,
@@ -644,7 +737,7 @@
       gasUrl: 'https://script.google.com/macros/s/AKfycbz9fYDyV8f4LH31YsaXV5Y31uaCPuCY-OIE3dBt13a6DNVRGq7s040TCn2yGlprak73oQ/exec',
       autoSync: true,
       theme: 'dark',
-      brandTitle: 'Controle Financeiro Pessoal',
+      brandTitle: 'FinControl',
       categories: [
         { id: 'metas', emoji: '🎯', name: 'Aportes: Reserva e Metas', pct: 30, color: '#10b981' },
         { id: 'transporte', emoji: '⛽', name: 'Transportes e conserto', pct: 22, color: '#3b82f6' },
@@ -656,7 +749,7 @@
       ],
       accountsList: [
         { id: 'acc_bb', name: 'Banco do Brasil', subtitle: 'Bolsa & Auxílios', balance: 700, isReserve: false },
-        { id: 'acc_inter', name: 'Banco Inter', subtitle: 'Conta Corrente', balance: 250, isReserve: false },
+        { id: 'acc_inter', name: 'Banco Inter', subtitle: 'Conta Principal', balance: 250, isReserve: false },
         { id: 'acc_mp', name: 'Mercado Pago (120% CDI)', subtitle: 'Reserva + Fatura', balance: 2600, isReserve: true },
         { id: 'acc_cash', name: '💵 Carteira (Dinheiro Físico)', subtitle: 'Espécie na mão', balance: 0, isReserve: false }
       ],
@@ -664,15 +757,14 @@
         { id: 'card_inter', name: 'Cartão Inter', limit: 4000, closingDay: 31, dueDay: 7, color: '#f97316' },
         { id: 'card_brb', name: 'Cartão BRB (Pai/Mãe)', limit: 1000, closingDay: 31, dueDay: 7, color: '#38bdf8' }
       ],
-      // Guarda ajustes manuais quando a fatura do banco tem diferença de centavos/IOF/compras antigas
-      cardManualOverrides: {}, // Ex: { '2026-10_card_inter': 1556.00 }
-      personalDebts: [], // [{ id, type: 'owe'|'owed', person, reason, amount, dateISO, settled: false }]
+      cardManualOverrides: {},
+      personalDebts: [],
       quickButtons: [
         { id: 'qb1', label: '⛽ Gasolina R$ 50', desc: 'Gasolina', amount: 50, category: 'transporte', method: 'card_inter', isFoodOut: false },
-        { id: 'qb2', label: '⛽ Gasolina R$ 100 (Dinheiro)', desc: 'Gasolina Espécie', amount: 100, category: 'transporte', method: 'acc_cash', isFoodOut: false },
+        { id: 'qb2', label: '⛽ Gasolina R$ 100 (Espécie)', desc: 'Gasolina Espécie', amount: 100, category: 'transporte', method: 'acc_cash', isFoodOut: false },
         { id: 'qb3', label: '📱 Celular R$ 30', desc: 'Plano Celular', amount: 30, category: 'assinaturas', method: 'card_inter', isFoodOut: false },
         { id: 'qb4', label: '💈 Cabelo R$ 75', desc: 'Barbearia', amount: 75, category: 'saude', method: 'card_inter', isFoodOut: false },
-        { id: 'qb5', label: '🏋️ Academia R$ 75', desc: 'Mensalidade Academia', amount: 75, category: 'saude', method: 'card_inter', isFoodOut: false },
+        { id: 'qb5', label: '🏋️ Academia R$ 75', desc: 'Academia', amount: 75, category: 'saude', method: 'card_inter', isFoodOut: false },
         { id: 'qb6', label: '🍔 Lanche Plantão R$ 25', desc: 'Lanche Plantão', amount: 25, category: 'alimentacao', method: 'card_inter', isFoodOut: true }
       ],
       goals: [
@@ -690,20 +782,59 @@
 
     function loadState() {
       try {
-        const raw = localStorage.getItem('kaio_fincontrol_v5');
-        if (!raw) return JSON.parse(JSON.stringify(DEFAULT_STATE));
-        const parsed = JSON.parse(raw);
-        return {
-          ...DEFAULT_STATE,
-          ...parsed,
-          categories: Array.isArray(parsed.categories) && parsed.categories.length ? parsed.categories : DEFAULT_STATE.categories,
-          accountsList: Array.isArray(parsed.accountsList) && parsed.accountsList.length ? parsed.accountsList : DEFAULT_STATE.accountsList,
-          cardsList: Array.isArray(parsed.cardsList) && parsed.cardsList.length ? parsed.cardsList : DEFAULT_STATE.cardsList,
-          cardManualOverrides: parsed.cardManualOverrides || {},
-          personalDebts: Array.isArray(parsed.personalDebts) ? parsed.personalDebts : []
-        };
-      } catch (e) {
-        return JSON.parse(JSON.stringify(DEFAULT_STATE));
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          return mergeWithDefault(parsed);
+        }
+      } catch (e) {}
+      return JSON.parse(JSON.stringify(DEFAULT_STATE));
+    }
+
+    function mergeWithDefault(parsed) {
+      return {
+        ...DEFAULT_STATE,
+        ...parsed,
+        categories: Array.isArray(parsed.categories) && parsed.categories.length ? parsed.categories : DEFAULT_STATE.categories,
+        accountsList: Array.isArray(parsed.accountsList) && parsed.accountsList.length ? parsed.accountsList : DEFAULT_STATE.accountsList,
+        cardsList: Array.isArray(parsed.cardsList) && parsed.cardsList.length ? parsed.cardsList : DEFAULT_STATE.cardsList,
+        cardManualOverrides: parsed.cardManualOverrides || {},
+        personalDebts: Array.isArray(parsed.personalDebts) ? parsed.personalDebts : [],
+        transactions: Array.isArray(parsed.transactions) ? parsed.transactions : []
+      };
+    }
+
+    // Vasculha todas as chaves antigas do navegador para resgatar gastos digitados anteriormente
+    function recoverLegacyLocalStorage(manualAlert = false) {
+      let recoveredTxs = 0;
+      const existingIds = new Set(state.transactions.map(t => t.id));
+
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key || key === STORAGE_KEY) continue;
+        try {
+          const raw = localStorage.getItem(key);
+          if (!raw || !raw.startsWith('{')) continue;
+          const data = JSON.parse(raw);
+          if (Array.isArray(data.transactions) && data.transactions.length > 0) {
+            data.transactions.forEach(t => {
+              if (t && t.id && !existingIds.has(t.id)) {
+                state.transactions.push(t);
+                existingIds.add(t.id);
+                recoveredTxs++;
+              }
+            });
+          }
+        } catch (err) {}
+      }
+
+      if (recoveredTxs > 0) {
+        saveLocalAndRender();
+        const banner = document.getElementById('recoveryNotice');
+        document.getElementById('recoveryNoticeText').textContent = `✅ Recuperamos automaticamente ${recoveredTxs} lançamento(s) que estavam salvos em versões anteriores do seu navegador! Clique em "☁️↑ Salvar" no topo para gravar na planilha.`;
+        banner.classList.remove('hidden');
+      } else if (manualAlert) {
+        alert('Nenhum lançamento oculto em chaves antigas foi encontrado neste navegador.');
       }
     }
 
@@ -726,17 +857,16 @@
     }
 
     function saveLocalAndRender() {
-      localStorage.setItem('kaio_fincontrol_v5', JSON.stringify(state));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       renderAll();
     }
 
-    // ==================== 3. INTEGRAÇÃO GOOGLE SHEETS (v5 SEM FALHA DE LEITURA) ====================
+    // ==================== 3. SINCRONIZAÇÃO COM PROTEÇÃO ANTI-SOBRESCRITA VAZIA ====================
     async function sendActionToSheets(payload) {
       const url = (state.gasUrl || '').trim();
       if (!url) return;
       const badge = document.getElementById('syncBadge');
-      badge.textContent = 'Sincronizando...';
-      badge.className = 'text-[11px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40';
+      badge.textContent = 'Salvando...';
 
       try {
         const res = await fetch(url, {
@@ -747,32 +877,42 @@
         });
         const json = await res.json();
         if (json.status === 'ok') {
-          badge.textContent = 'Salvo na Planilha ✓';
-          badge.className = 'text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
-        } else {
-          badge.textContent = 'Aviso: ' + (json.message || 'Erro Script');
+          badge.textContent = 'Salvo ✓';
+          badge.className = 'text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
         }
       } catch (err) {
-        console.error(err);
-        badge.textContent = 'Salvo Local (Offline)';
-        badge.className = 'text-[11px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40';
+        badge.textContent = 'Local (Offline)';
       }
     }
 
-    async function pullFromSheets() {
+    async function pullFromSheets(isManualClick = false) {
       const url = (state.gasUrl || document.getElementById('gasUrlInput')?.value || '').trim();
-      if (!url) return alert('Configure a URL do Apps Script na aba Ajustes.');
+      if (!url) return;
 
       const badge = document.getElementById('syncBadge');
-      badge.textContent = 'Lendo Planilha...';
+      badge.textContent = 'Lendo...';
 
       try {
         const res = await fetch(url + '?t=' + Date.now(), { method: 'GET', redirect: 'follow' });
         const data = await res.json();
         if (data && data.status === 'ok') {
-          if (Array.isArray(data.transactions)) {
-            state.transactions = data.transactions;
+          const cloudTxs = Array.isArray(data.transactions) ? data.transactions : [];
+
+          // PROTEÇÃO CRÍTICA: Se a planilha estiver vazia (0 lançamentos), mas você tiver gastos salvos localmente, NÃO apaga seus gastos locais!
+          if (cloudTxs.length === 0 && state.transactions.length > 0) {
+            if (isManualClick) {
+              if (confirm(`A planilha está vazia, mas você tem ${state.transactions.length} lançamentos salvos aqui no navegador. Deseja ENVIAR seus dados locais para a planilha agora?`)) {
+                await pushFullTableToSheets();
+              }
+            }
+            badge.textContent = 'Protegido Local ✓';
+            return;
           }
+
+          if (cloudTxs.length > 0) {
+            state.transactions = cloudTxs;
+          }
+
           if (data.meta && Object.keys(data.meta).length > 0) {
             const m = data.meta;
             if (Array.isArray(m.categories) && m.categories.length) state.categories = m.categories;
@@ -787,15 +927,11 @@
             if (m.baseIncomeStudent !== undefined) state.baseIncomeStudent = m.baseIncomeStudent;
           }
           saveLocalAndRender();
-          badge.textContent = 'Planilha Lida ✓';
-          badge.className = 'text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
-        } else {
-          throw new Error(data?.message || 'Retorno inválido');
+          badge.textContent = 'Sincronizado ✓';
+          badge.className = 'text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
         }
       } catch (err) {
-        console.error(err);
-        badge.textContent = 'Erro Leitura (Usando Local)';
-        badge.className = 'text-[11px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40';
+        badge.textContent = 'Modo Local';
       }
     }
 
@@ -807,54 +943,57 @@
       });
     }
 
-    // ==================== 4. CALCULADORA RÁPIDA INTEGRADA ====================
-    function calcInput(ch) {
-      const disp = document.getElementById('calcDisplay');
-      if (ch === 'C') {
-        disp.value = '';
-        document.getElementById('calcHistory').textContent = '';
-        return;
-      }
-      disp.value += ch;
+    // ==================== 4. EDIÇÃO LIVRE DE CARTÕES E LIMITES ====================
+    function editCardDetails(cardId) {
+      const card = state.cardsList.find(c => c.id === cardId);
+      if (!card) return;
+
+      const newName = prompt('Nome do Cartão:', card.name);
+      if (newName === null) return;
+
+      const newLimit = prompt(`Novo Limite Total para "${newName || card.name}" (R$):`, card.limit);
+      if (newLimit === null) return;
+
+      const newClosing = prompt('Dia de Fechamento da Fatura (1 a 31):', card.closingDay || 31);
+      const newDue = prompt('Dia de Vencimento da Fatura (1 a 31):', card.dueDay || 7);
+
+      card.name = newName.trim() || card.name;
+      const parsedLimit = parseFloat(String(newLimit).replace(',', '.'));
+      if (!isNaN(parsedLimit) && parsedLimit >= 0) card.limit = parsedLimit;
+      if (newClosing !== null) card.closingDay = parseInt(newClosing, 10) || 31;
+      if (newDue !== null) card.dueDay = parseInt(newDue, 10) || 7;
+
+      saveLocalAndRender();
+      sendActionToSheets({ action: 'SAVE_META', meta: getMetaBundle() });
     }
 
-    function calcBackspace() {
-      const disp = document.getElementById('calcDisplay');
-      disp.value = disp.value.slice(0, -1);
+    function openNewCardModal() {
+      const name = prompt('Nome do novo Cartão de Crédito (Ex: Nubank, Santander):');
+      if (!name) return;
+      const limit = parseFloat((prompt('Limite Total do Cartão (R$):', '2000') || '2000').replace(',', '.')) || 2000;
+      const closingDay = parseInt(prompt('Dia do Fechamento:', '31') || '31', 10);
+      const dueDay = parseInt(prompt('Dia do Vencimento:', '7') || '7', 10);
+
+      state.cardsList.push({
+        id: 'card_' + Date.now(),
+        name: name.trim(),
+        limit,
+        closingDay,
+        dueDay,
+        color: '#8b5cf6'
+      });
+      saveLocalAndRender();
+      sendActionToSheets({ action: 'SAVE_META', meta: getMetaBundle() });
     }
 
-    function handleCalcKey(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        calcEvaluate();
-      }
+    function deleteCard(cardId) {
+      if (state.cardsList.length <= 1) return alert('Mantenha pelo menos 1 cartão ou edite o existente.');
+      if (!confirm('Deseja remover este cartão da lista?')) return;
+      state.cardsList = state.cardsList.filter(c => c.id !== cardId);
+      saveLocalAndRender();
+      sendActionToSheets({ action: 'SAVE_META', meta: getMetaBundle() });
     }
 
-    function calcEvaluate() {
-      const disp = document.getElementById('calcDisplay');
-      const raw = disp.value.replace(/,/g, '.').replace(/[^0-9+\-*/(). ]/g, '');
-      if (!raw) return;
-      try {
-        const result = Function('"use strict";return (' + raw + ')')();
-        if (typeof result === 'number' && isFinite(result)) {
-          document.getElementById('calcHistory').textContent = `${raw} =`;
-          disp.value = Number(result.toFixed(2));
-        }
-      } catch (err) {
-        document.getElementById('calcHistory').textContent = 'Expressão inválida';
-      }
-    }
-
-    function useCalcInForm() {
-      calcEvaluate();
-      const val = parseFloat(document.getElementById('calcDisplay').value);
-      if (!isNaN(val) && val > 0) {
-        document.getElementById('txAmount').value = val.toFixed(2);
-        document.getElementById('txDesc').focus();
-      }
-    }
-
-    // ==================== 5. REGRA DE FATURA (FECHA 31 / VENCE 07) E AJUSTE MANUAL ====================
     function getCardInvoiceForMonth(cardId, ym) {
       const monthTxs = state.transactions.filter(t => (t.month || t.date.slice(0, 7)) === ym && t.category !== 'receita' && t.method === cardId);
       let calculatedMySum = 0;
@@ -872,8 +1011,7 @@
         calculatedMySum,
         calculatedTotalLimit: Math.max(calculatedTotalLimit, finalMyInvoice),
         finalMyInvoice,
-        hasOverride,
-        diff: finalMyInvoice - calculatedMySum
+        hasOverride
       };
     }
 
@@ -884,9 +1022,9 @@
       const info = getCardInvoiceForMonth(cardId, ym);
 
       const input = prompt(
-        `AJUSTE DE FATURA (${card.name} - Ciclo ${formatMonthBR(ym)})\n\n` +
-        `• Soma dos lançamentos no site: ${formatBRL(info.calculatedMySum)}\n` +
-        `• Digite abaixo o valor EXATO que aparece no app do seu banco (ou deixe em branco para remover o ajuste manual):`,
+        `AJUSTAR DÍVIDA REAL DA FATURA (${card.name} - ${formatMonthBR(ym)})\n\n` +
+        `• Soma calculada pelos lançamentos: ${formatBRL(info.calculatedMySum)}\n` +
+        `• Digite o valor EXATO que consta no app do banco (ou apague tudo e dê OK para voltar ao cálculo automático):`,
         info.finalMyInvoice.toFixed(2)
       );
 
@@ -906,6 +1044,46 @@
       sendActionToSheets({ action: 'SAVE_META', meta: getMetaBundle() });
     }
 
+    // ==================== 5. CALCULADORA RÁPIDA ====================
+    function calcInput(ch) {
+      const disp = document.getElementById('calcDisplay');
+      if (ch === 'C') {
+        disp.value = '';
+        document.getElementById('calcHistory').textContent = '';
+        return;
+      }
+      disp.value += ch;
+    }
+    function calcBackspace() {
+      const disp = document.getElementById('calcDisplay');
+      disp.value = disp.value.slice(0, -1);
+    }
+    function handleCalcKey(e) {
+      if (e.key === 'Enter') { e.preventDefault(); calcEvaluate(); }
+    }
+    function calcEvaluate() {
+      const disp = document.getElementById('calcDisplay');
+      const raw = disp.value.replace(/,/g, '.').replace(/[^0-9+\-*/(). ]/g, '');
+      if (!raw) return;
+      try {
+        const result = Function('"use strict";return (' + raw + ')')();
+        if (typeof result === 'number' && isFinite(result)) {
+          document.getElementById('calcHistory').textContent = `${raw} =`;
+          disp.value = Number(result.toFixed(2));
+        }
+      } catch (err) {
+        document.getElementById('calcHistory').textContent = 'Erro';
+      }
+    }
+    function useCalcInForm() {
+      calcEvaluate();
+      const val = parseFloat(document.getElementById('calcDisplay').value);
+      if (!isNaN(val) && val > 0) {
+        document.getElementById('txAmount').value = val.toFixed(2);
+        document.getElementById('txDesc').focus();
+      }
+    }
+
     // ==================== 6. RENDERIZAÇÃO COMPLETA ====================
     function getActiveBaseIncome() {
       return state.careerMode ? state.baseIncomeDoctor : state.baseIncomeStudent;
@@ -914,50 +1092,39 @@
     function renderAll() {
       const ym = state.selectedMonth;
       document.getElementById('currentMonthDisplay').textContent = formatMonthBR(ym);
-      document.getElementById('brandTitle').textContent = state.brandTitle || 'Controle Financeiro Pessoal';
-      document.getElementById('customTitleInput').value = state.brandTitle || '';
+      document.getElementById('brandTitle').textContent = state.brandTitle || 'FinControl';
+      document.getElementById('customTitleInput').value = state.brandTitle || 'FinControl';
       document.getElementById('interPointsInput').value = state.interPoints || 3700;
       document.getElementById('gasUrlInput').value = state.gasUrl || '';
       document.getElementById('autoSyncToggle').checked = !!state.autoSync;
 
-      // Garantir que Carteira de Dinheiro Físico exista na lista
       if (!state.accountsList.some(a => a.id === 'acc_cash')) {
         state.accountsList.push({ id: 'acc_cash', name: '💵 Carteira (Dinheiro Físico)', subtitle: 'Espécie na mão', balance: 0, isReserve: false });
       }
 
-      // Popular selects de Categorias e Meios
       populateFormSelects();
 
-      // 1. Saldo Bruto (Contas + Dinheiro Físico)
       const gross = state.accountsList.reduce((acc, a) => acc + Number(a.balance || 0), 0);
       document.getElementById('kpiGrossBalance').textContent = formatBRL(gross);
       document.getElementById('miniAccountsRow').innerHTML = state.accountsList.map(a =>
-        `<span>${a.name.split(' ')[0]}: <strong class="${a.isReserve ? 'text-emerald-400' : 'text-slate-200'} money-val">${formatBRL(a.balance)}</strong></span>`
+        `<span>${a.name.replace('💵 ', '').split(' ')[0]}: <strong class="${a.isReserve ? 'text-emerald-400' : 'text-slate-200'} money-val">${formatBRL(a.balance)}</strong></span>`
       ).join('');
 
-      // 2. Faturas Mescladas (Fecha dia 31, Vence dia 07)
       let totalOpenInvoices = 0;
       state.cardsList.forEach(c => {
-        const inv = getCardInvoiceForMonth(c.id, ym);
-        totalOpenInvoices += inv.finalMyInvoice;
+        totalOpenInvoices += getCardInvoiceForMonth(c.id, ym).finalMyInvoice;
       });
 
       const reserveAcc = state.accountsList.find(a => a.isReserve) || state.accountsList[0];
-      const reserveBal = Number(reserveAcc?.balance || 0);
-      const netLiquidity = reserveBal - totalOpenInvoices;
+      const netLiquidity = Number(reserveAcc?.balance || 0) - totalOpenInvoices;
 
       const netEl = document.getElementById('kpiNetLiquidity');
       netEl.textContent = formatBRL(netLiquidity);
       netEl.className = `text-2xl font-bold mt-2 money-val ${netLiquidity >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
       document.getElementById('kpiOpenInvoices').textContent = formatBRL(totalOpenInvoices);
 
-      // 3. Gastos do Ciclo (Incluindo eventual diferença de ajuste de fatura para não furar seu controle)
       const monthTxs = state.transactions.filter(t => (t.month || t.date.slice(0, 7)) === ym);
-      let totalMonthSpent = 0;
-      let extraIncome = 0;
-      let foodOutSpent = 0;
-      let foodOutCount = 0;
-
+      let totalMonthSpent = 0, extraIncome = 0, foodOutSpent = 0, foodOutCount = 0;
       const catSpent = {};
       state.categories.forEach(c => catSpent[c.id] = 0);
 
@@ -986,9 +1153,8 @@
       budgetBar.style.width = `${pctTotal}%`;
       budgetBar.className = `h-full transition-all duration-300 ${pctTotal >= 100 ? 'bg-rose-500' : pctTotal >= 80 ? 'bg-amber-400' : 'bg-emerald-500'}`;
 
-      // 4. Comida Fora e Dívidas Pessoais
       document.getElementById('kpiFoodOutSpent').textContent = formatBRL(foodOutSpent);
-      document.getElementById('foodOutCount').textContent = `${foodOutCount}x no ciclo`;
+      document.getElementById('foodOutCount').textContent = `${foodOutCount}x`;
 
       const oweSum = state.personalDebts.filter(d => !d.settled && d.type === 'owe').reduce((a, b) => a + Number(b.amount || 0), 0);
       document.getElementById('kpiPersonalDebt').textContent = formatBRL(oweSum);
@@ -1001,6 +1167,7 @@
       renderPersonalDebts();
       renderGoals();
       renderSettingsCategories();
+      renderSettingsCards();
       renderCharts(catSpent);
     }
 
@@ -1013,9 +1180,9 @@
 
       const metSel = document.getElementById('txMethod');
       const currentMet = metSel.value;
-      const cardOpts = state.cardsList.map(c => `<option value="${c.id}">💳 ${c.name} (Fecha 31/Vence 07)</option>`).join('');
+      const cardOpts = state.cardsList.map(c => `<option value="${c.id}">💳 ${c.name} (Lim: ${formatBRL(c.limit)})</option>`).join('');
       const accOpts = state.accountsList.map(a => `<option value="${a.id}">${a.id === 'acc_cash' ? '💵' : '🏦'} ${a.name}</option>`).join('');
-      metSel.innerHTML = `<optgroup label="Cartões de Crédito">${cardOpts}</optgroup><optgroup label="Dinheiro Físico & Contas Pix">${accOpts}</optgroup>`;
+      metSel.innerHTML = `<optgroup label="Cartões de Crédito">${cardOpts}</optgroup><optgroup label="Dinheiro Físico & Contas">${accOpts}</optgroup>`;
       if (currentMet) metSel.value = currentMet;
     }
 
@@ -1023,38 +1190,61 @@
       document.getElementById('accountsCardsGrid').innerHTML = state.accountsList.map(a => `
         <div class="p-3 rounded-lg bg-slate-800/60 border ${a.isReserve ? 'border-emerald-500/40' : 'border-slate-700'}">
           <div class="flex justify-between items-start">
-            <span class="text-xs font-bold ${a.isReserve ? 'text-emerald-400' : 'text-slate-200'}">${a.name}</span>
-            <button onclick="editAccountBalance('${a.id}')" class="text-[11px] text-emerald-400 hover:underline">✏️ Saldo</button>
+            <span class="text-xs font-bold ${a.isReserve ? 'text-emerald-400' : 'text-white'}">${a.name}</span>
+            <button onclick="editAccountBalance('${a.id}')" class="text-[11px] text-emerald-400 hover:underline font-medium">✏️ Saldo</button>
           </div>
           <div class="text-[11px] text-slate-400">${a.subtitle || ''}</div>
-          <div class="text-lg font-bold mt-1 money-val">${formatBRL(a.balance)}</div>
+          <div class="text-lg font-bold mt-1 text-white money-val">${formatBRL(a.balance)}</div>
         </div>
       `).join('');
 
       document.getElementById('cardsCardsGrid').innerHTML = state.cardsList.map(c => {
         const info = getCardInvoiceForMonth(c.id, ym);
+        const available = Math.max(0, Number(c.limit || 0) - info.calculatedTotalLimit);
         const pct = c.limit > 0 ? Math.min(100, (info.calculatedTotalLimit / c.limit) * 100) : 0;
         return `
-          <div class="p-3 rounded-lg bg-slate-800/60 border border-slate-700 space-y-1.5">
+          <div class="p-3 rounded-lg bg-slate-800/60 border border-slate-700 space-y-2">
             <div class="flex flex-wrap justify-between items-center gap-1 text-xs">
-              <span class="font-bold text-white">${c.name} <span class="text-[10px] text-slate-400 font-normal">(Lim: ${formatBRL(c.limit)})</span></span>
-              <div class="flex items-center gap-2">
-                <span>Fatura: <strong class="text-rose-400 money-val">${formatBRL(info.finalMyInvoice)}</strong></span>
-                <button onclick="promptAdjustCardInvoice('${c.id}')" class="text-[11px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30">
-                  ✏️ Ajustar Valor Real
+              <div>
+                <strong class="text-white">${c.name}</strong>
+                <span class="text-[11px] text-slate-400 ml-1">(Limite: <strong class="money-val">${formatBRL(c.limit)}</strong> • Livre: <span class="money-val text-emerald-400">${formatBRL(available)}</span>)</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <button onclick="editCardDetails('${c.id}')" class="text-[11px] px-2 py-0.5 rounded bg-slate-800 text-sky-400 border border-slate-700 hover:bg-slate-700 font-medium" title="Mudar Limite ou Nome do Cartão">
+                  ⚙️ Limite
+                </button>
+                <button onclick="promptAdjustCardInvoice('${c.id}')" class="text-[11px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-medium" title="Alterar valor da dívida da fatura">
+                  ✏️ Dívida: <span class="money-val font-bold">${formatBRL(info.finalMyInvoice)}</span>
                 </button>
               </div>
             </div>
-            ${info.hasOverride ? `<div class="text-[10px] text-amber-300">⚡ Valor travado manualmente conforme banco (Soma lançada: ${formatBRL(info.calculatedMySum)})</div>` : ''}
+            ${info.hasOverride ? `<div class="text-[10px] text-amber-400">⚡ Dívida ajustada manualmente (Soma lançada: ${formatBRL(info.calculatedMySum)})</div>` : ''}
             <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
-              <div class="h-full" style="width: ${pct}%; background-color: ${c.color || '#f97316'}"></div>
+              <div class="h-full transition-all duration-300" style="width: ${pct}%; background-color: ${c.color || '#f97316'}"></div>
             </div>
           </div>
         `;
       }).join('');
     }
 
-    // ==================== 7. LANÇAMENTOS (DD/MM/YYYY + CICLO FECHA DIA 31) ====================
+    function renderSettingsCards() {
+      const container = document.getElementById('settingsCardsList');
+      if (!container) return;
+      container.innerHTML = state.cardsList.map(c => `
+        <div class="p-2.5 rounded-lg bg-slate-800/60 border border-slate-700 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div>
+            <strong class="text-white">${c.name}</strong>
+            <span class="text-slate-400 ml-2">Limite: <strong class="money-val text-emerald-400">${formatBRL(c.limit)}</strong> (Fecha ${c.closingDay || 31} / Vence ${c.dueDay || 7})</span>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="editCardDetails('${c.id}')" class="text-sky-400 hover:underline font-medium">✏️ Mudar Limite / Nome</button>
+            <button onclick="deleteCard('${c.id}')" class="text-rose-400 hover:underline">🗑️</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ==================== 7. LANÇAMENTOS ====================
     function addMonthsToYM(ym, add) {
       const [y, m] = ym.split('-').map(Number);
       const d = new Date(y, m - 1 + add, 1);
@@ -1078,9 +1268,7 @@
 
       const isCard = state.cardsList.some(c => c.id === method);
       let baseMonth = dateISO.slice(0, 7);
-      if (isCard && pushNextInvoice) {
-        baseMonth = addMonthsToYM(baseMonth, 1);
-      }
+      if (isCard && pushNextInvoice) baseMonth = addMonthsToYM(baseMonth, 1);
 
       if (editingId) {
         const idx = state.transactions.findIndex(t => t.id === editingId);
@@ -1128,7 +1316,6 @@
         createdItems.push(item);
       }
 
-      // Se foi pago em Dinheiro Físico ou Conta Pix, atualiza o saldo daquela carteira na hora
       const acc = state.accountsList.find(a => a.id === method);
       if (acc) {
         if (category === 'receita') acc.balance = Number((Number(acc.balance) + rawTotal).toFixed(2));
@@ -1163,7 +1350,7 @@
 
     function cancelTxEdit() {
       document.getElementById('editingTxId').value = '';
-      document.getElementById('txFormTitle').textContent = '➕ Novo Lançamento (Formato DD/MM/AAAA)';
+      document.getElementById('txFormTitle').textContent = '➕ Registrar Gasto ou Receita';
       document.getElementById('cancelEditBtn').classList.add('hidden');
       document.getElementById('txDesc').value = '';
       document.getElementById('txAmount').value = '';
@@ -1199,7 +1386,7 @@
             <td class="py-2.5 px-2 font-medium text-white">${t.desc} ${t.isFoodOut ? '<span class="ml-1 text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300">🍔</span>' : ''}</td>
             <td class="py-2.5 px-2 text-slate-400">${catName}</td>
             <td class="py-2.5 px-2 text-slate-300">${methodName}</td>
-            <td class="py-2.5 px-2 font-mono text-slate-400">${formatMonthBR(t.month)} (${t.installmentInfo || '1/1'})</td>
+            <td class="py-2.5 px-2 font-mono text-slate-400">${formatMonthBR(t.month)}</td>
             <td class="py-2.5 px-2 text-right money-val font-bold ${isInc ? 'text-emerald-400' : 'text-slate-200'}">${isInc ? '+' : '-'}${formatBRL(t.myAmount)}</td>
             <td class="py-2.5 px-2 text-center whitespace-nowrap">
               <button onclick="editTransaction('${t.id}')" class="text-sky-400 hover:text-sky-300 px-1.5">✏️</button>
@@ -1210,7 +1397,7 @@
       }).join('');
     }
 
-    // ==================== 8. MÓDULO DE DÍVIDAS PESSOAIS (EU DEVO / ME DEVEM) ====================
+    // ==================== 8. DÍVIDAS PESSOAIS ====================
     function addPersonalDebt(e) {
       e.preventDefault();
       const type = document.getElementById('debtType').value;
@@ -1245,19 +1432,16 @@
 
       const accNames = state.accountsList.map((a, idx) => `${idx + 1} - ${a.name} (${formatBRL(a.balance)})`).join('\n');
       const choice = prompt(
-        `QUITAR ACERTO COM ${d.person.toUpperCase()} (${formatBRL(d.amount)})\n\n` +
-        `Digite o número da conta/carteira para atualizar o saldo automaticamente (ou 0 para apenas marcar como quitado sem mexer em saldo):\n\n${accNames}`,
+        `QUITAR PENDÊNCIA COM ${d.person.toUpperCase()} (${formatBRL(d.amount)})\n\n` +
+        `Escolha a conta/carteira para atualizar o saldo (ou 0 para apenas dar baixa):\n\n${accNames}`,
         '1'
       );
       if (choice === null) return;
 
       const idx = parseInt(choice, 10) - 1;
       if (idx >= 0 && state.accountsList[idx]) {
-        if (d.type === 'owe') {
-          state.accountsList[idx].balance = Number((state.accountsList[idx].balance - d.amount).toFixed(2));
-        } else {
-          state.accountsList[idx].balance = Number((state.accountsList[idx].balance + d.amount).toFixed(2));
-        }
+        if (d.type === 'owe') state.accountsList[idx].balance = Number((state.accountsList[idx].balance - d.amount).toFixed(2));
+        else state.accountsList[idx].balance = Number((state.accountsList[idx].balance + d.amount).toFixed(2));
       }
 
       d.settled = true;
@@ -1274,14 +1458,14 @@
     function renderPersonalDebts() {
       const container = document.getElementById('personalDebtsList');
       if (!state.personalDebts.length) {
-        container.innerHTML = `<div class="p-6 text-center text-slate-500 text-xs">Nenhuma dívida ou valor a receber cadastrado.</div>`;
+        container.innerHTML = `<div class="p-6 text-center text-slate-500 text-xs">Nenhuma pendência registrada.</div>`;
         return;
       }
 
       container.innerHTML = state.personalDebts.map(d => `
         <div class="p-3 rounded-lg border flex flex-wrap items-center justify-between gap-2 ${d.settled ? 'bg-slate-900/40 border-slate-800 opacity-50' : (d.type === 'owe' ? 'bg-rose-950/20 border-rose-500/30' : 'bg-emerald-950/20 border-emerald-500/30')}">
           <div>
-            <div class="text-xs font-bold flex items-center gap-2">
+            <div class="text-xs font-bold text-white flex items-center gap-2">
               <span>${d.type === 'owe' ? '🔴 Eu Devo p/' : '🟢 Me Deve:'} <strong>${d.person}</strong></span>
               <span class="font-mono text-slate-400 text-[11px]">(${isoToBR(d.dateISO)})</span>
             </div>
@@ -1296,7 +1480,7 @@
       `).join('');
     }
 
-    // ==================== 9. CATEGORIAS, ORÇAMENTO, METAS E GRÁFICOS ====================
+    // ==================== 9. CATEGORIAS, METAS E GRÁFICOS ====================
     function renderCategoryBudgets(effectiveIncome, catSpent) {
       const totalPct = state.categories.reduce((acc, c) => acc + Number(c.pct || 0), 0);
       const pctEl = document.getElementById('totalPctAllocated');
@@ -1312,8 +1496,8 @@
         return `
           <div class="space-y-1">
             <div class="flex justify-between items-center text-xs">
-              <span class="font-medium">${cat.emoji} ${cat.name} <span class="text-slate-500">(${cat.pct}%)</span></span>
-              <span class="money-val"><strong>${formatBRL(spent)}</strong> <span class="text-slate-400">/ ${formatBRL(limit)}</span></span>
+              <span class="font-medium text-white">${cat.emoji} ${cat.name} <span class="text-slate-400">(${cat.pct}%)</span></span>
+              <span class="money-val"><strong class="text-white">${formatBRL(spent)}</strong> <span class="text-slate-400">/ ${formatBRL(limit)}</span></span>
             </div>
             <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
               <div class="${barColor} h-full" style="width: ${Math.min(100, pct)}%"></div>
@@ -1328,7 +1512,7 @@
         <div class="p-2.5 rounded-lg bg-slate-800/60 border border-slate-700 flex items-center justify-between text-xs">
           <div class="flex items-center gap-2">
             <span class="w-3 h-3 rounded-full" style="background:${c.color}"></span>
-            <strong>${c.emoji} ${c.name}</strong>
+            <strong class="text-white">${c.emoji} ${c.name}</strong>
             <span class="text-slate-400">(${c.pct}%)</span>
           </div>
           <div class="flex gap-2">
@@ -1340,9 +1524,9 @@
     }
 
     function openCategoryModal() {
-      const name = prompt('Nome da nova categoria:');
+      const name = prompt('Nome da categoria:');
       if (!name) return;
-      const emoji = prompt('Emoji da categoria:', '📌') || '📌';
+      const emoji = prompt('Emoji:', '📌') || '📌';
       const pct = parseFloat(prompt('Percentual da renda (%):', '10') || '10');
       state.categories.push({ id: 'cat_' + Date.now(), emoji, name, pct, color: '#10b981' });
       saveLocalAndRender();
@@ -1355,7 +1539,7 @@
       const name = prompt('Nome da categoria:', c.name);
       if (name === null) return;
       const emoji = prompt('Emoji:', c.emoji) || c.emoji;
-      const pct = parseFloat(prompt('Percentual da renda (%):', c.pct));
+      const pct = parseFloat(prompt('Percentual (%):', c.pct));
       c.name = name.trim() || c.name;
       c.emoji = emoji;
       if (!isNaN(pct)) c.pct = pct;
@@ -1373,8 +1557,8 @@
     function renderQuickButtons() {
       document.getElementById('quickButtonsContainer').innerHTML = state.quickButtons.map(b => `
         <div class="inline-flex items-center rounded-lg bg-slate-800 border border-slate-700 overflow-hidden">
-          <button onclick="triggerQuickBtn('${b.id}')" class="text-xs px-3 py-1.5 hover:bg-slate-700">${b.label}</button>
-          <button onclick="deleteQuickBtn('${b.id}')" class="text-[10px] px-1.5 py-1.5 text-slate-500 hover:text-rose-400 border-l border-slate-700">✕</button>
+          <button onclick="triggerQuickBtn('${b.id}')" class="text-xs px-3 py-1.5 hover:bg-slate-700 text-white font-medium">${b.label}</button>
+          <button onclick="deleteQuickBtn('${b.id}')" class="text-[10px] px-1.5 py-1.5 text-slate-400 hover:text-rose-400 border-l border-slate-700">✕</button>
         </div>
       `).join('');
     }
@@ -1391,17 +1575,17 @@
     }
 
     function openQuickBtnModal() {
-      const desc = prompt('Descrição do gasto rápido (Ex: Açaí):');
+      const desc = prompt('Descrição do atalho (Ex: Gasolina):');
       if (!desc) return;
-      const amount = parseFloat(prompt('Valor padrão (R$):', '25') || '25');
-      const cat = state.categories[0]?.id || 'alimentacao';
+      const amount = parseFloat(prompt('Valor (R$):', '50') || '50');
+      const cat = state.categories[0]?.id || 'transporte';
       state.quickButtons.push({
         id: 'qb_' + Date.now(),
         label: `⚡ ${desc} R$ ${amount}`,
         desc,
         amount,
         category: cat,
-        method: 'card_inter',
+        method: state.cardsList[0]?.id || 'card_inter',
         isFoodOut: false
       });
       saveLocalAndRender();
@@ -1430,7 +1614,7 @@
               <span>Faltam: <strong class="text-amber-400 money-val">${formatBRL(rem)}</strong></span>
             </div>
             <div class="flex gap-2 pt-2 border-t border-slate-800">
-              <button onclick="adjustGoal('${g.id}', 50)" class="text-xs px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300">+R$ 50</button>
+              <button onclick="adjustGoal('${g.id}', 50)" class="text-xs px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 font-medium">+R$ 50</button>
               <button onclick="editGoal('${g.id}')" class="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 ml-auto">✏️ Editar</button>
               <button onclick="deleteGoal('${g.id}')" class="text-xs px-2 py-1 rounded bg-rose-950/40 text-rose-300">🗑️</button>
             </div>
@@ -1440,11 +1624,11 @@
     }
 
     function openGoalModal() {
-      const name = prompt('Nome da nova Caixinha / Meta:');
+      const name = prompt('Nome da Caixinha / Meta:');
       if (!name) return;
-      const target = parseFloat(prompt('Valor da Meta (R$):', '1000') || '1000');
-      const current = parseFloat(prompt('Valor já guardado hoje (R$):', '0') || '0');
-      state.goals.push({ id: 'g_' + Date.now(), name, current, target, note: 'Caixinha personalizada' });
+      const target = parseFloat(prompt('Meta Total (R$):', '1000') || '1000');
+      const current = parseFloat(prompt('Valor já guardado (R$):', '0') || '0');
+      state.goals.push({ id: 'g_' + Date.now(), name, current, target, note: '' });
       saveLocalAndRender();
       sendActionToSheets({ action: 'SAVE_META', meta: getMetaBundle() });
     }
@@ -1486,7 +1670,7 @@
         if (done) count++;
         html += `
           <button onclick="toggleStreak('${k}')" class="p-3 rounded-lg border text-left flex items-center justify-between ${done ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-300' : 'bg-slate-800/50 border-slate-700 text-slate-400'}">
-            <div><div class="text-xs font-bold">Semana ${w}</div><div class="text-[11px]">${done ? 'Revisada' : 'Pendente'}</div></div>
+            <div><div class="text-xs font-bold text-white">Semana ${w}</div><div class="text-[11px]">${done ? 'Concluída' : 'Pendente'}</div></div>
             <span>${done ? '✅' : '⬜'}</span>
           </button>`;
       }
@@ -1501,6 +1685,9 @@
     }
 
     function renderCharts(catSpent) {
+      const isLight = state.theme === 'light';
+      const labelColor = isLight ? '#334155' : '#94a3b8';
+
       const ctxD = document.getElementById('doughnutChart');
       if (doughnutChartInstance) doughnutChartInstance.destroy();
       const vals = state.categories.map(c => catSpent[c.id] || 0);
@@ -1508,9 +1695,9 @@
         type: 'doughnut',
         data: {
           labels: state.categories.map(c => c.name),
-          datasets: [{ data: vals.every(v => v === 0) ? [1] : vals, backgroundColor: vals.every(v => v === 0) ? ['#334155'] : state.categories.map(c => c.color), borderWidth: 0 }]
+          datasets: [{ data: vals.every(v => v === 0) ? [1] : vals, backgroundColor: vals.every(v => v === 0) ? [isLight ? '#cbd5e1' : '#334155'] : state.categories.map(c => c.color), borderWidth: 0 }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 10 } } } } }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: labelColor, font: { size: 10 } } } } }
       });
 
       const ctxE = document.getElementById('evolutionChart');
@@ -1528,14 +1715,22 @@
           labels: (months.length ? months : [state.selectedMonth]).map(formatMonthBR),
           datasets: [
             { label: 'Gastos (R$)', data: months.length ? months.map(m => map[m]) : [0], backgroundColor: '#f43f5e', borderRadius: 4 },
-            { label: 'Renda Base (R$)', data: (months.length ? months : [1]).map(() => getActiveBaseIncome()), backgroundColor: '#10b981', borderRadius: 4 }
+            { label: 'Renda (R$)', data: (months.length ? months : [1]).map(() => getActiveBaseIncome()), backgroundColor: '#10b981', borderRadius: 4 }
           ]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { ticks: { color: labelColor } },
+            y: { ticks: { color: labelColor } }
+          },
+          plugins: { legend: { labels: { color: labelColor } } }
+        }
       });
     }
 
-    // ==================== 10. FUNÇÕES DE APOIO E NAVEGAÇÃO ====================
+    // ==================== 10. NAVEGAÇÃO E AJUSTES ====================
     function shiftMonth(delta) {
       state.selectedMonth = addMonthsToYM(state.selectedMonth, delta);
       saveLocalAndRender();
@@ -1571,7 +1766,7 @@
     function openAccountModal() {
       const name = prompt('Nome da Conta ou Carteira:');
       if (!name) return;
-      const bal = parseFloat(prompt('Saldo inicial (R$):', '0') || '0');
+      const bal = parseFloat((prompt('Saldo atual (R$):', '0') || '0').replace(',', '.')) || 0;
       state.accountsList.push({ id: 'acc_' + Date.now(), name, subtitle: 'Conta adicional', balance: bal, isReserve: false });
       saveLocalAndRender();
       sendActionToSheets({ action: 'SAVE_META', meta: getMetaBundle() });
@@ -1580,9 +1775,9 @@
       const ym = state.selectedMonth;
       let total = 0;
       state.cardsList.forEach(c => total += getCardInvoiceForMonth(c.id, ym).finalMyInvoice);
-      if (total <= 0) return alert('Nenhuma fatura em aberto neste ciclo.');
+      if (total <= 0) return alert('Sem faturas abertas neste ciclo.');
       const reserveAcc = state.accountsList.find(a => a.isReserve) || state.accountsList[0];
-      if (confirm(`Deseja abater ${formatBRL(total)} da conta "${reserveAcc.name}" (Vencimento dia 07)?`)) {
+      if (confirm(`Abater ${formatBRL(total)} do saldo de "${reserveAcc.name}"?`)) {
         reserveAcc.balance = Number((reserveAcc.balance - total).toFixed(2));
         saveLocalAndRender();
         sendActionToSheets({ action: 'SAVE_META', meta: getMetaBundle() });
@@ -1608,6 +1803,7 @@
       if (t !== 'dark') document.body.classList.add('theme-' + t);
       state.theme = t;
       saveLocalAndRender();
+      sendActionToSheets({ action: 'SAVE_META', meta: getMetaBundle() });
     }
     function updateBranding() {
       state.brandTitle = document.getElementById('customTitleInput').value;
@@ -1625,7 +1821,7 @@
       alert('Configurações salvas!');
     }
     function clearOnlyTransactions() {
-      if (!confirm('Limpar apenas os lançamentos mantendo suas categorias, contas e metas?')) return;
+      if (!confirm('Tem certeza que deseja zerar os lançamentos?')) return;
       state.transactions = [];
       state.cardManualOverrides = {};
       saveLocalAndRender();
@@ -1641,7 +1837,7 @@
       const f = e.target.files[0];
       if (!f) return;
       const r = new FileReader();
-      r.onload = ev => { state = { ...DEFAULT_STATE, ...JSON.parse(ev.target.result) }; saveLocalAndRender(); pushFullTableToSheets(); };
+      r.onload = ev => { state = mergeWithDefault(JSON.parse(ev.target.result)); saveLocalAndRender(); pushFullTableToSheets(); };
       r.readAsText(f);
     }
 
@@ -1650,8 +1846,14 @@
       document.getElementById('txDateBR').value = todayBR;
       document.getElementById('debtDateBR').value = todayBR;
       if (state.theme && state.theme !== 'dark') setTheme(state.theme);
+      
+      // Tenta recuperar automaticamente qualquer dado de versões anteriores no mesmo navegador
+      recoverLegacyLocalStorage(false);
       renderAll();
-      if (state.autoSync && state.gasUrl) pullFromSheets();
+
+      if (state.autoSync && state.gasUrl) {
+        pullFromSheets(false);
+      }
     });
   </script>
 </body>
